@@ -5,7 +5,7 @@
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxbcRaVXV9mmmHtK4ZKO4WAGpjxs5XRmfsy1Kl0gH8kDvDLebAMyPhJwqdAyXg7OaPd/exec';
 
 // ▼ 填入狂牛體能官方 LINE 網址
-const LINE_OFFICIAL_URL = 'https://line.me/R/ti/p/@YOUR_LINE_ID';
+const LINE_OFFICIAL_URL = 'https://line.me/R/ti/p/@djt6282z';
 
 const COACH_CONFIG = {
   Victor: { color: '#039BE5', label: 'Victor 教練' },
