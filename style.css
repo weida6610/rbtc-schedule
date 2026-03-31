@@ -206,8 +206,10 @@ body {
     rgba(0,0,0,0.025) 5px,
     rgba(0,0,0,0.025) 10px
   );
-  cursor: not-allowed;
+  cursor: pointer;
+  transition: background-color 0.1s;
 }
+.nonwork-cell:hover { background-color: #ebebf4; }
 
 /* Loading / Error */
 .grid-msg {
@@ -354,6 +356,44 @@ body {
   transition: background 0.13s;
 }
 .btn-cancel:hover { background: var(--border); }
+
+/* Form hint */
+.form-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+/* Contact modal */
+.contact-body {
+  padding: 28px 20px 24px;
+  text-align: center;
+}
+.contact-icon  { font-size: 2.8rem; margin-bottom: 10px; }
+.contact-title { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+.contact-msg   { font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px; }
+
+.btn-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #06C755;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  margin-bottom: 4px;
+  font-family: inherit;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.btn-line:hover { opacity: 0.88; }
 
 /* Success state */
 #booking-success {

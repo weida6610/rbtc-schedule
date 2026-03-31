@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>預約體驗課</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +13,6 @@
 <!-- ── Widget ── -->
 <div id="widget">
 
-  <!-- Header -->
   <div id="widget-header">
     <div id="coach-name">教練行事曆</div>
     <div id="week-nav">
@@ -23,130 +22,146 @@
     </div>
   </div>
 
-  <!-- Legend -->
   <div id="legend">
-    <div class="legend-item">
-      <div class="legend-dot busy-dot"></div>
-      <span>已有課程</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot free-dot"></div>
-      <span>點擊可預約</span>
-    </div>
+    <div class="legend-item"><div class="legend-dot busy-dot"></div><span>已有課程</span></div>
+    <div class="legend-item"><div class="legend-dot free-dot"></div><span>點擊可預約</span></div>
+    <div class="legend-item"><div class="legend-dot nonwork-dot"></div><span>非工作時間</span></div>
   </div>
 
-  <!-- Calendar Grid -->
   <div id="calendar-wrap">
-    <div id="calendar-grid">
-      <div class="grid-msg">載入中…</div>
-    </div>
+    <div id="calendar-grid"><div class="grid-msg">載入中…</div></div>
   </div>
 
-</div><!-- /widget -->
+</div>
 
 
-<!-- ── Booking Modal ── -->
+<!-- ── Modal ── -->
 <div id="modal-overlay">
   <div id="modal">
 
     <div class="modal-handle"></div>
-
     <div id="modal-header">
       <div id="modal-title">體驗課預約</div>
       <div id="modal-datetime"></div>
     </div>
 
-    <!-- Form -->
-    <div id="booking-form">
+    <!-- 預約表單 -->
+    <div id="modal-booking">
+      <div id="booking-form-inner">
 
-      <div class="form-section">
-        <div class="form-label">姓名 <span class="required">*</span></div>
-        <input id="f-name" type="text" class="form-input" placeholder="請輸入您的姓名" autocomplete="name">
-      </div>
-
-      <div class="form-section">
-        <div class="form-label">電話 <span class="required">*</span></div>
-        <input id="f-phone" type="tel" class="form-input" placeholder="0912-xxx-xxx" autocomplete="tel">
-      </div>
-
-      <div class="form-divider">讓我們更了解您</div>
-
-      <!-- 舊傷 -->
-      <div class="form-section">
-        <div class="form-label">是否有舊傷或日常痠緊痛？</div>
-        <select id="f-injury" class="form-select" onchange="toggleInjury()">
-          <option value="否">沒有</option>
-          <option value="有">有</option>
-        </select>
-        <div id="f-inj-wrap" style="display:none" class="detail-input">
-          <input id="f-inj-detail" type="text" class="form-input" placeholder="請簡述部位或狀況（例：右肩夾擠、腰椎）">
+        <div class="form-section">
+          <div class="form-label">姓名 <span class="required">*</span></div>
+          <input id="f-name" type="text" class="form-input" placeholder="請輸入您的姓名" autocomplete="name">
         </div>
-      </div>
 
-      <!-- 肌力訓練 -->
-      <div class="form-section">
-        <div class="form-label">是否曾接觸過肌力訓練？</div>
-        <select id="f-strength" class="form-select">
-          <option value="否">沒有</option>
-          <option value="有">有</option>
-        </select>
-      </div>
-
-      <!-- 運動習慣 -->
-      <div class="form-section">
-        <div class="form-label">平時有運動習慣嗎？</div>
-        <select id="f-exercise" class="form-select" onchange="toggleExercise()">
-          <option value="無">沒有</option>
-          <option value="有">有</option>
-        </select>
-        <div id="f-ex-wrap" style="display:none" class="detail-input">
-          <input id="f-ex-detail" type="text" class="form-input" placeholder="什麼運動呢？（例：慢跑、籃球、瑜珈）">
+        <div class="form-section">
+          <div class="form-label">電話 <span class="required">*</span></div>
+          <input id="f-phone" type="tel" class="form-input" placeholder="0912-xxx-xxx" autocomplete="tel">
         </div>
-      </div>
 
-      <!-- 目標 -->
-      <div class="form-section">
-        <div class="form-label">運動目標？（可複選）</div>
-        <div class="goal-chips">
-          <div class="goal-chip" data-value="增肌"         onclick="toggleGoalChip(this)">增肌</div>
-          <div class="goal-chip" data-value="減脂"         onclick="toggleGoalChip(this)">減脂</div>
-          <div class="goal-chip" data-value="改善體態"     onclick="toggleGoalChip(this)">改善體態</div>
-          <div class="goal-chip" data-value="提升運動表現" onclick="toggleGoalChip(this)">提升運動表現</div>
-          <div class="goal-chip" data-value="復健/改善痠痛" onclick="toggleGoalChip(this)">復健/改善痠痛</div>
-          <div class="goal-chip" data-value="其他"         onclick="toggleGoalChip(this)">其他</div>
+        <div class="form-section">
+          <div class="form-label">LINE ID <span class="required">*</span></div>
+          <input id="f-line" type="text" class="form-input" placeholder="輸入 LINE ID 或貼上好友連結">
+          <div class="form-hint">請確保 LINE 為可加好友狀態，教練將透過 LINE 與您確認預約詳情</div>
         </div>
-        <input id="f-goal-other" type="text" class="form-input detail-input" placeholder="其他目標（選填）">
+
+        <div class="form-divider">讓我們更了解您</div>
+
+        <div class="form-section">
+          <div class="form-label">是否有舊傷或日常痠緊痛？</div>
+          <select id="f-injury" class="form-select" onchange="toggleInjury()">
+            <option value="否">沒有</option>
+            <option value="有">有</option>
+          </select>
+          <div id="f-inj-wrap" style="display:none" class="detail-input">
+            <input id="f-inj-detail" type="text" class="form-input" placeholder="請簡述部位或狀況（例：右肩夾擠、腰椎）">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-label">是否曾接觸過肌力訓練？</div>
+          <select id="f-strength" class="form-select">
+            <option value="否">沒有</option>
+            <option value="有">有</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <div class="form-label">平時有運動習慣嗎？</div>
+          <select id="f-exercise" class="form-select" onchange="toggleExercise()">
+            <option value="無">沒有</option>
+            <option value="有">有</option>
+          </select>
+          <div id="f-ex-wrap" style="display:none" class="detail-input">
+            <input id="f-ex-detail" type="text" class="form-input" placeholder="什麼運動呢？（例：慢跑、籃球、瑜珈）">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-label">運動目標？（可複選）</div>
+          <div class="goal-chips">
+            <div class="goal-chip" data-value="增肌"          onclick="toggleGoalChip(this)">增肌</div>
+            <div class="goal-chip" data-value="減脂"          onclick="toggleGoalChip(this)">減脂</div>
+            <div class="goal-chip" data-value="改善體態"      onclick="toggleGoalChip(this)">改善體態</div>
+            <div class="goal-chip" data-value="提升運動表現"  onclick="toggleGoalChip(this)">提升運動表現</div>
+            <div class="goal-chip" data-value="復健/改善痠痛" onclick="toggleGoalChip(this)">復健/改善痠痛</div>
+            <div class="goal-chip" data-value="其他"          onclick="toggleGoalChip(this)">其他</div>
+          </div>
+          <input id="f-goal-other" type="text" class="form-input detail-input" placeholder="其他目標（選填）">
+        </div>
+
+        <div class="form-section">
+          <div class="form-label">備註（選填）</div>
+          <textarea id="f-notes" class="form-input form-textarea" placeholder="有任何想讓教練提前知道的事嗎？"></textarea>
+        </div>
+
+        <div id="booking-error" class="error-msg"></div>
+        <input type="hidden" id="f-datetime">
+
+        <button id="btn-submit" class="btn-submit" onclick="submitBooking()">送出預約</button>
+        <button class="btn-cancel" onclick="closeModal()">取消</button>
+
+      </div><!-- /booking-form-inner -->
+
+      <!-- 送出成功 -->
+      <div id="booking-success" style="display:none">
+        <div class="success-icon">✅</div>
+        <div class="success-title">預約已送出！</div>
+        <div class="success-msg">教練將盡快透過 LINE 與您確認時間<br>請保持 LINE 暢通</div>
+        <button class="btn-cancel" onclick="closeModal()">關閉</button>
       </div>
 
-      <!-- 備註 -->
-      <div class="form-section">
-        <div class="form-label">備註（選填）</div>
-        <textarea id="f-notes" class="form-input form-textarea" placeholder="有任何想讓教練提前知道的事嗎？"></textarea>
+    </div><!-- /modal-booking -->
+
+    <!-- 非工作時間聯繫 -->
+    <div id="modal-contact" style="display:none">
+      <div class="contact-body">
+        <div class="contact-icon">🕐</div>
+        <div class="contact-title">此時段為非工作時間</div>
+        <div class="contact-msg">
+          若您希望預約此時段，或有其他課程相關問題，<br>
+          歡迎透過官方 LINE 聯繫我們，將有專人為您服務！
+        </div>
+        <a id="btn-line" href="#" target="_blank" class="btn-line" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0">
+            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+          </svg>
+          官方 LINE 聯繫
+        </a>
+        <button class="btn-cancel" style="margin-top:8px" onclick="closeModal()">關閉</button>
       </div>
-
-      <div id="booking-error" class="error-msg"></div>
-
-      <!-- Hidden fields -->
-      <input type="hidden" id="f-datetime">
-
-      <button id="btn-submit" class="btn-submit" onclick="submitBooking()">送出預約</button>
-      <button class="btn-cancel" onclick="closeModal()">取消</button>
-
-    </div><!-- /booking-form -->
-
-    <!-- Success State -->
-    <div id="booking-success" style="display:none">
-      <div class="success-icon">✅</div>
-      <div class="success-title">預約已送出！</div>
-      <div class="success-msg">
-        教練將盡快與您確認時間<br>請保持電話暢通
-      </div>
-      <button class="btn-cancel" onclick="closeModal()">關閉</button>
-    </div>
+    </div><!-- /modal-contact -->
 
   </div><!-- /modal -->
 </div><!-- /modal-overlay -->
 
+<script>
+  // 動態設定 LINE 按鈕網址（由 schedule.js 的 LINE_OFFICIAL_URL 決定）
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('btn-line');
+    if (btn && typeof LINE_OFFICIAL_URL !== 'undefined') btn.href = LINE_OFFICIAL_URL;
+  });
+</script>
 <script src="schedule.js"></script>
 </body>
 </html>

@@ -5,12 +5,17 @@
 // ▼▼▼ 設定區 ▼▼▼
 const TZ = 'Asia/Taipei';
 
-// 班別 → 可預約時段 [開始時, 結束時]
-// 最後可預約格 = 結束時 - 1（e.g. 早班結束17點，最後可預約16:00）
-const SHIFT_HOURS = {
-  '早班': [9,  17],
-  '午班': [12, 21],
-  '晚班': [14, 23]
+// 每位教練的預設工作時段
+// default: [開始時, 結束時]
+// overrides: { JS_weekday: [開始時, 結束時] }  0=週日, 1=週一 … 6=週六
+// 若當天有全日「休」事件，整天封鎖（優先於此設定）
+const COACH_SHIFTS = {
+  Victor: { default: [11, 23], overrides: { 0: [9, 12] } }, // 週日 09-12
+  Apo:    { default: [12, 23], overrides: {} },
+  Morgan: { default: [12, 23], overrides: {} },
+  Adam:   { default: [9,  17], overrides: {} },
+  Rick:   { default: [12, 23], overrides: {} },
+  Verna:  { default: [12, 23], overrides: {} }
 };
 
 const COACHES = {
@@ -79,7 +84,8 @@ function doGet(e) {
 // 讀取教練行事曆
 // ============================================================
 function getCoachEvents(coachName, weekOffset) {
-  const coach = COACHES[coachName];
+  const coach      = COACHES[coachName];
+  const shiftConf  = COACH_SHIFTS[coachName];
   if (!coach) return { error: '找不到教練：' + coachName, events: [] };
 
   try {
@@ -106,37 +112,39 @@ function getCoachEvents(coachName, weekOffset) {
         end:   ev.getEndTime().getTime()
       }));
 
-    // 全日事件 → 判斷「休」或「班別」
+    // 全日「休」事件 → 排休
     const dayOffs = [];
-    const shifts  = {};   // { "0": [9,17], "1": [14,23], ... }  key = 0(Mon)~6(Sun)
-
     allEvents
-      .filter(ev => ev.isAllDayEvent())
+      .filter(ev => ev.isAllDayEvent() && ev.getTitle().includes('休'))
       .forEach(ev => {
-        const title = ev.getTitle().trim();
-        const di    = (ev.getStartTime().getDay() + 6) % 7; // 0=Mon
-
-        if (title.includes('休')) {
-          // 標記排休
-          dayOffs.push(di);
-        } else {
-          // 比對班別關鍵字
-          for (const shiftName in SHIFT_HOURS) {
-            if (title.includes(shiftName)) {
-              shifts[String(di)] = SHIFT_HOURS[shiftName];
-              break;
-            }
-          }
-        }
+        const di = (ev.getStartTime().getDay() + 6) % 7; // 0=Mon
+        dayOffs.push(di);
       });
+
+    // 計算每天班別（由 COACH_SHIFTS 決定，休假日跳過）
+    const shifts = {};
+    for (let di = 0; di < 7; di++) {
+      if (dayOffs.includes(di)) continue;
+
+      const dayDate = new Date(monday);
+      dayDate.setDate(monday.getDate() + di);
+      const jsDay = dayDate.getDay(); // 0=Sun
+
+      if (!shiftConf) continue;
+      const shiftHours = (shiftConf.overrides[jsDay] !== undefined)
+        ? shiftConf.overrides[jsDay]
+        : shiftConf.default;
+
+      shifts[String(di)] = shiftHours;
+    }
 
     return {
       coach:     coachName,
       color:     coach.color,
       weekStart: monday.getTime(),
-      events:    events,
-      dayOffs:   dayOffs,
-      shifts:    shifts
+      events,
+      dayOffs,
+      shifts
     };
 
   } catch (err) {
@@ -154,6 +162,7 @@ function handleBooking(p) {
     const coachName = p.coach    || '';
     const name      = p.name     || '';
     const phone     = p.phone    || '';
+    const lineId    = p.lineId   || '';
     const datetime  = p.datetime || '';
     const injury    = p.injury   || '否';
     const injDetail = p.injuryDetail || '';
@@ -169,6 +178,7 @@ function handleBooking(p) {
     const msg =
       `📅 <b>新體驗課預約</b>\n\n` +
       `👤 ${name}・${phone}\n` +
+      `💬 LINE：${lineId || '未填寫'}\n` +
       `🏋️ 預約教練：${coachName}\n` +
       `📆 時間：${datetime}\n\n` +
       `🩹 舊傷/痠緊痛：${injuryText}\n` +
@@ -179,20 +189,16 @@ function handleBooking(p) {
 
     const coach   = COACHES[coachName];
     const targets = new Set();
-
     if (TG_GROUP_CHAT_ID) targets.add(TG_GROUP_CHAT_ID);
     if (coach && coach.chatId) targets.add(coach.chatId);
 
     const tgUrl = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
-
     targets.forEach(chatId => {
       const resp = UrlFetchApp.fetch(tgUrl, {
-        method:      'post',
-        contentType: 'application/json',
-        payload:     JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'HTML' }),
+        method: 'post', contentType: 'application/json',
+        payload: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'HTML' }),
         muteHttpExceptions: true
       });
-      // 記錄每個目標的回應，方便除錯
       Logger.log(`TG → ${chatId} : ${resp.getResponseCode()} ${resp.getContentText()}`);
     });
 
