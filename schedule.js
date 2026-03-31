@@ -2,7 +2,6 @@
 // RBTC 教練行事曆 Widget — 前端邏輯
 // ============================================================
 
-// ▼ 部署 GAS 後填入 Script ID
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwot0J4a2J1VtszAHGpodNLChAknij8-9WTMS54OIt1OzrGLzVAtu5eThZEizpM-pwo/exec';
 
 const COACH_CONFIG = {
@@ -14,15 +13,15 @@ const COACH_CONFIG = {
   Verna:  { color: '#E67C73', label: 'Verna 教練' }
 };
 
-// 09:00–22:00，每 30 分鐘一格，共 26 格
+// 09:00–22:00，每 1 小時一格，共 14 格（09:00 起，最後一格 22:00）
 const HOUR_START = 9;
-const HOUR_END   = 22;
-const SLOTS      = (HOUR_END - HOUR_START) * 2; // 26
+const HOUR_END   = 23;           // 最後一格起始 22:00（session 結束 23:00）
+const SLOTS      = HOUR_END - HOUR_START; // 14
 
 let currentCoach      = 'Victor';
 let currentWeekOffset = 0;
 let weekStartDate     = null;
-let busyCells         = new Set();  // 'dayIdx-slotIdx'
+let busyCells         = new Set();
 
 // ============================================================
 // 初始化
@@ -56,7 +55,6 @@ function loadEvents() {
   document.getElementById('calendar-grid').innerHTML =
     '<div class="grid-msg">載入中…</div>';
 
-  // 清除舊 script tag
   const old = document.getElementById('jsonp-script');
   if (old) old.remove();
 
@@ -69,9 +67,9 @@ function loadEvents() {
   };
 
   const script = document.createElement('script');
-  script.id  = 'jsonp-script';
-  script.src = `${GAS_URL}?action=events&coach=${currentCoach}&week=${currentWeekOffset}&callback=${cbName}`;
-  script.onerror = function () {
+  script.id    = 'jsonp-script';
+  script.src   = `${GAS_URL}?action=events&coach=${currentCoach}&week=${currentWeekOffset}&callback=${cbName}`;
+  script.onerror = () => {
     document.getElementById('calendar-grid').innerHTML =
       '<div class="grid-msg">⚠️ 載入失敗，請重新整理</div>';
   };
@@ -95,7 +93,6 @@ function updateWeekLabel() {
   const dow    = now.getDay();
   const monday = new Date(now);
   monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1) + currentWeekOffset * 7);
-
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
 
@@ -105,13 +102,13 @@ function updateWeekLabel() {
   else if (currentWeekOffset === 1) label = `下週  ${fmt(monday)} – ${fmt(sunday)}`;
   else                               label = `${fmt(monday)} – ${fmt(sunday)}`;
 
-  document.getElementById('week-label').textContent = label;
+  document.getElementById('week-label').textContent   = label;
   document.getElementById('btn-prev').disabled = currentWeekOffset <= 0;
   document.getElementById('btn-next').disabled = currentWeekOffset >= 3;
 }
 
 // ============================================================
-// 繪製行事曆格線
+// 繪製行事曆
 // ============================================================
 function renderCalendar(data) {
   if (data.error) {
@@ -123,12 +120,11 @@ function renderCalendar(data) {
   weekStartDate = new Date(data.weekStart);
   const now     = new Date();
 
-  // 建立忙碌格集合
+  // 建立忙碌格集合（以 30 分鐘精度偵測，對應至 1 小時格）
   busyCells = new Set();
   (data.events || []).forEach(ev => {
-    const start  = new Date(ev.start);
     const end    = new Date(ev.end);
-    const cursor = new Date(start);
+    const cursor = new Date(ev.start);
     while (cursor < end) {
       const di = dayIndex(cursor);
       const si = slotIndex(cursor);
@@ -139,9 +135,17 @@ function renderCalendar(data) {
     }
   });
 
-  // 產生格線 HTML
-  const DAY_LABELS  = ['週一','週二','週三','週四','週五','週六','週日'];
-  const dateLabels  = Array.from({ length: 7 }, (_, i) => {
+  const dayOffs = new Set(data.dayOffs || []);
+  const shifts  = data.shifts || {};   // { "0": [9,17], "3": [14,23], ... }
+
+  renderGrid(dayOffs, shifts, now);
+}
+
+function renderGrid(dayOffs, shifts, now) {
+  const DAY_LABELS = ['週一','週二','週三','週四','週五','週六','週日'];
+
+  // 日期字串
+  const dateLabels = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(weekStartDate);
     d.setDate(weekStartDate.getDate() + i);
     return `${d.getMonth() + 1}/${d.getDate()}`;
@@ -149,25 +153,43 @@ function renderCalendar(data) {
 
   let html = '<div class="grid-container">';
 
-  // 標頭列
+  // ── 標頭列 ──
   html += '<div class="grid-cell time-header"></div>';
-  DAY_LABELS.forEach((lbl, i) => {
+  DAY_LABELS.forEach((lbl, di) => {
     const d = new Date(weekStartDate);
-    d.setDate(weekStartDate.getDate() + i);
-    const isToday = d.toDateString() === now.toDateString();
-    html += `<div class="grid-cell day-header${isToday ? ' today' : ''}">${lbl}<br><span class="date-num">${dateLabels[i]}</span></div>`;
+    d.setDate(weekStartDate.getDate() + di);
+    const isToday  = d.toDateString() === now.toDateString();
+    const isDayOff = dayOffs.has(di);
+    html += `<div class="grid-cell day-header${isToday ? ' today' : ''}${isDayOff ? ' is-dayoff' : ''}">` +
+            `${lbl}<br><span class="date-num">${dateLabels[di]}</span>` +
+            (isDayOff ? '<br><span class="badge-off">排休</span>' : '') +
+            `</div>`;
   });
 
-  // 時段列
+  // ── 時段列 ──
   for (let si = 0; si < SLOTS; si++) {
-    const totalMin = HOUR_START * 60 + si * 30;
-    const hh = String(Math.floor(totalMin / 60)).padStart(2, '0');
-    const mm = String(totalMin % 60).padStart(2, '0');
-    const showLabel = si % 2 === 0;
+    const hour      = HOUR_START + si;
+    const timeLabel = `${String(hour).padStart(2, '0')}:00`;
 
-    html += `<div class="grid-cell time-label">${showLabel ? `${hh}:${mm}` : ''}</div>`;
+    html += `<div class="grid-cell time-label">${timeLabel}</div>`;
 
     for (let di = 0; di < 7; di++) {
+      // 排休日
+      if (dayOffs.has(di)) {
+        html += `<div class="grid-cell dayoff-cell"></div>`;
+        continue;
+      }
+
+      // 班別限制
+      const shift = shifts[String(di)];
+      if (shift) {
+        const [shiftStart, shiftEnd] = shift;
+        if (hour < shiftStart || hour >= shiftEnd) {
+          html += `<div class="grid-cell nonwork-cell" title="非上班時間"></div>`;
+          continue;
+        }
+      }
+
       const cellDate = cellDateTime(di, si);
       const key      = `${di}-${si}`;
 
@@ -187,20 +209,18 @@ function renderCalendar(data) {
 
 // ── 工具函式 ──
 function dayIndex(date) {
-  const d = date.getDay();
-  return d === 0 ? 6 : d - 1; // 0=Mon, 6=Sun
+  return (date.getDay() + 6) % 7; // 0=Mon … 6=Sun
 }
 
 function slotIndex(date) {
   const totalMin = date.getHours() * 60 + date.getMinutes();
-  return Math.floor((totalMin - HOUR_START * 60) / 30);
+  return Math.floor((totalMin - HOUR_START * 60) / 60); // 1-hour 解析度
 }
 
 function cellDateTime(di, si) {
   const d = new Date(weekStartDate);
   d.setDate(weekStartDate.getDate() + di);
-  const totalMin = HOUR_START * 60 + si * 30;
-  d.setHours(Math.floor(totalMin / 60), totalMin % 60, 0, 0);
+  d.setHours(HOUR_START + si, 0, 0, 0);
   return d;
 }
 
@@ -210,11 +230,9 @@ function formatDt(date) {
   const d   = date.getDate();
   const dow = DOW[date.getDay()];
   const hh  = String(date.getHours()).padStart(2, '0');
-  const mm  = String(date.getMinutes()).padStart(2, '0');
-  return `${m}/${d}（週${dow}）${hh}:${mm}`;
+  return `${m}/${d}（週${dow}）${hh}:00`;
 }
 
-// ── 點擊格子 ──
 function onGridClick(e) {
   const cell = e.target.closest('.free-cell');
   if (!cell) return;
@@ -229,7 +247,6 @@ function onOverlayClick(e) {
 // 預約 Modal
 // ============================================================
 function openBookingModal(datetime) {
-  // 重置表單
   document.getElementById('f-name').value    = '';
   document.getElementById('f-phone').value   = '';
   document.getElementById('f-injury').value  = '否';
@@ -240,8 +257,8 @@ function openBookingModal(datetime) {
   document.getElementById('f-ex-wrap').style.display    = 'none';
   document.getElementById('f-ex-detail').value          = '';
   document.querySelectorAll('.goal-chip').forEach(c => c.classList.remove('selected'));
-  document.getElementById('f-goal-other').value = '';
-  document.getElementById('f-notes').value      = '';
+  document.getElementById('f-goal-other').value  = '';
+  document.getElementById('f-notes').value       = '';
   document.getElementById('booking-error').textContent  = '';
   document.getElementById('booking-form').style.display = 'block';
   document.getElementById('booking-success').style.display = 'none';
@@ -259,42 +276,35 @@ function closeModal() {
   document.getElementById('modal-overlay').classList.remove('active');
 }
 
-// ── 表單連動 ──
 window.toggleInjury = function () {
-  const show = document.getElementById('f-injury').value === '有';
-  document.getElementById('f-inj-wrap').style.display = show ? 'block' : 'none';
+  document.getElementById('f-inj-wrap').style.display =
+    document.getElementById('f-injury').value === '有' ? 'block' : 'none';
 };
 
 window.toggleExercise = function () {
-  const show = document.getElementById('f-exercise').value === '有';
-  document.getElementById('f-ex-wrap').style.display = show ? 'block' : 'none';
+  document.getElementById('f-ex-wrap').style.display =
+    document.getElementById('f-exercise').value === '有' ? 'block' : 'none';
 };
 
-window.toggleGoalChip = function (el) {
-  el.classList.toggle('selected');
-};
+window.toggleGoalChip = function (el) { el.classList.toggle('selected'); };
 
-// ── 送出 ──
 window.submitBooking = function () {
   const name  = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
-
   if (!name || !phone) {
     document.getElementById('booking-error').textContent = '請填寫姓名和電話';
     return;
   }
 
-  const goals = [...document.querySelectorAll('.goal-chip.selected')]
-    .map(c => c.dataset.value);
+  const goals = [...document.querySelectorAll('.goal-chip.selected')].map(c => c.dataset.value);
   const goalOther = document.getElementById('f-goal-other').value.trim();
   if (goalOther) goals.push(goalOther);
 
   const params = new URLSearchParams({
-    action:   'book',
-    coach:    currentCoach,
-    datetime: document.getElementById('f-datetime').value,
-    name,
-    phone,
+    action:       'book',
+    coach:        currentCoach,
+    datetime:     document.getElementById('f-datetime').value,
+    name, phone,
     injury:       document.getElementById('f-injury').value,
     injuryDetail: document.getElementById('f-inj-detail').value.trim(),
     strength:     document.getElementById('f-strength').value,
@@ -305,13 +315,12 @@ window.submitBooking = function () {
   });
 
   const btn = document.getElementById('btn-submit');
-  btn.disabled    = true;
+  btn.disabled = true;
   btn.textContent = '送出中…';
 
-  // no-cors：GAS 執行但回傳不可讀，直接顯示成功
   fetch(`${GAS_URL}?${params.toString()}`, { mode: 'no-cors' })
     .then(() => showSuccess())
-    .catch(() => showSuccess()); // no-cors 永遠 resolve
+    .catch(() => showSuccess());
 };
 
 function showSuccess() {
@@ -321,5 +330,4 @@ function showSuccess() {
 
 window.closeModal = closeModal;
 
-// ============================================================
 document.addEventListener('DOMContentLoaded', init);

@@ -103,7 +103,7 @@ body {
 
 .grid-cell {
   background: var(--bg);
-  min-height: 18px;
+  min-height: 30px;
 }
 
 /* Header */
@@ -124,9 +124,9 @@ body {
 /* Time label */
 .time-label {
   background: var(--bg-card);
-  font-size: 0.58rem;
+  font-size: 0.6rem;
   color: var(--text-muted);
-  padding: 1px 3px 0;
+  padding: 3px 4px 0;
   display: flex;
   align-items: flex-start;
   white-space: nowrap;
@@ -135,10 +135,8 @@ body {
 /* Busy */
 .busy-cell {
   background: var(--coach-color);
-  opacity: 0.82;
+  opacity: 0.85;
 }
-/* Merge adjacent busy cells visually */
-.busy-cell + .busy-cell { border-top: 1px solid rgba(255,255,255,0.07); }
 
 /* Free (bookable) */
 .free-cell {
@@ -146,12 +144,41 @@ body {
   cursor: pointer;
   transition: background 0.12s;
 }
-.free-cell:hover { background: rgba(255,255,255,0.07); }
+.free-cell:hover { background: rgba(255,255,255,0.08); }
 
 /* Past */
 .past-cell {
   background: var(--bg);
-  opacity: 0.3;
+  opacity: 0.25;
+}
+
+/* 排休 */
+.is-dayoff { color: #666688 !important; }
+.badge-off {
+  display: inline-block;
+  background: rgba(255,107,107,0.18);
+  color: #ff6b6b;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  padding: 1px 5px;
+  font-weight: 600;
+}
+.dayoff-cell {
+  background: #1c1c2a;
+  cursor: not-allowed;
+}
+
+/* 非上班時間 */
+.nonwork-cell {
+  background-color: #0e0e1a;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    rgba(255,255,255,0.018) 5px,
+    rgba(255,255,255,0.018) 10px
+  );
+  cursor: not-allowed;
 }
 
 /* Loading / Error */
