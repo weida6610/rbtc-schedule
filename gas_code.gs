@@ -39,7 +39,7 @@ const COACHES = {
 };
 
 const TG_BOT_TOKEN    = '8724846224:AAEdQXHVMpO352x-JAduOQoc3BMuEY7WEHA';
-const TG_GROUP_CHAT_ID = '';  // 待補：建立教練群組後填入
+const TG_GROUP_CHAT_ID = '-5123933467';
 
 // ▲▲▲ 設定區結束 ▲▲▲
 

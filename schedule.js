@@ -3,7 +3,7 @@
 // ============================================================
 
 // ▼ 部署 GAS 後填入 Script ID
-const GAS_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwot0J4a2J1VtszAHGpodNLChAknij8-9WTMS54OIt1OzrGLzVAtu5eThZEizpM-pwo/exec';
 
 const COACH_CONFIG = {
   Victor: { color: '#039BE5', label: 'Victor 教練' },
