@@ -2,7 +2,7 @@
 // RBTC 教練行事曆 Widget — 前端邏輯
 // ============================================================
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwot0J4a2J1VtszAHGpodNLChAknij8-9WTMS54OIt1OzrGLzVAtu5eThZEizpM-pwo/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxbcRaVXV9mmmHtK4ZKO4WAGpjxs5XRmfsy1Kl0gH8kDvDLebAMyPhJwqdAyXg7OaPd/exec';
 
 const COACH_CONFIG = {
   Victor: { color: '#039BE5', label: 'Victor 教練' },
