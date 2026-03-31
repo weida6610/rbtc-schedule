@@ -2,7 +2,7 @@
 // RBTC 教練行事曆 Widget — 前端邏輯
 // ============================================================
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyweiSr4W02_hCR17mu9XXNfRKMseKmCBV7IbcO4pRGuOkHWoPPvZYya6gBhBee7vrQ/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwhQFlwX5oKHt5QKn12vv2THMP4y8-D66xE8NG_uwAAZfMsgWA_ekaEgxgu_WsOWmau/exec';
 
 // ▼ 填入狂牛體能官方 LINE 網址
 const LINE_OFFICIAL_URL = 'https://line.me/R/ti/p/@djt6282z';
