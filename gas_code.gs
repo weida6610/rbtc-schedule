@@ -113,16 +113,22 @@ function getCoachEvents(coachName, weekOffset) {
       }));
 
     // 全日「休」事件 → 排休
-    // 但若該教練在該星期幾有 shift override，優先 override（例如 Victor 週日 09-12）
+    // 用 Utilities.formatDate(TZ) 比對日期字串，避免 UTC vs Asia/Taipei 時區偏移問題
     const dayOffs = [];
     allEvents
       .filter(ev => ev.isAllDayEvent() && ev.getTitle().includes('休'))
       .forEach(ev => {
-        const jsDay = ev.getStartTime().getDay(); // 0=Sun
-        const di    = (jsDay + 6) % 7;            // 0=Mon
-        const hasOverride = shiftConf && shiftConf.overrides.hasOwnProperty(jsDay);
-        if (!hasOverride) dayOffs.push(di);
-        // 若有 override（例如 Victor 週日），跳過，讓下面的 shifts 迴圈套用 override 時段
+        const evStr = Utilities.formatDate(ev.getStartTime(), TZ, 'yyyy-MM-dd');
+        for (let di = 0; di < 7; di++) {
+          const d = new Date(monday);
+          d.setDate(monday.getDate() + di);
+          if (Utilities.formatDate(d, TZ, 'yyyy-MM-dd') === evStr) {
+            const jsDay = (di + 1) % 7; // di:0=Mon..6=Sun → jsDay:1=Mon..0=Sun
+            const hasOverride = shiftConf && shiftConf.overrides.hasOwnProperty(jsDay);
+            if (!hasOverride) dayOffs.push(di);
+            break;
+          }
+        }
       });
 
     // 計算每天班別（由 COACH_SHIFTS 決定，排休日跳過）
@@ -130,9 +136,7 @@ function getCoachEvents(coachName, weekOffset) {
     for (let di = 0; di < 7; di++) {
       if (dayOffs.includes(di)) continue;
 
-      const dayDate = new Date(monday);
-      dayDate.setDate(monday.getDate() + di);
-      const jsDay = dayDate.getDay(); // 0=Sun
+      const jsDay = (di + 1) % 7; // di:0=Mon..6=Sun → jsDay:1=Mon..0=Sun
 
       if (!shiftConf) continue;
       const shiftHours = (shiftConf.overrides[jsDay] !== undefined)
