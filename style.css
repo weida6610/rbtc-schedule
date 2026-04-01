@@ -94,6 +94,7 @@ body {
 .legend-dot  { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
 .busy-dot    { background: var(--coach-color); }
 .free-dot    { background: #ffffff; border: 1.5px solid var(--border); }
+.full-dot    { background: #d6f5e3; border: 1.5px solid #a8e6c4; }
 .nonwork-dot {
   background-image: repeating-linear-gradient(
     -45deg, #e8eaf0, #e8eaf0 3px, #f4f5fa 3px, #f4f5fa 7px
@@ -179,6 +180,16 @@ body {
 /* Past */
 .past-cell {
   background: #f4f5fa;
+}
+
+/* 當天已達上限 → 聯繫 LINE */
+.full-cell {
+  background: #f0faf4;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.full-cell:hover {
+  background: #d6f5e3;
 }
 
 /* 排休 */

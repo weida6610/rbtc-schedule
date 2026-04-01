@@ -8,7 +8,7 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbwLjltlY_ueiQqmix6CFMvs
 const LINE_OFFICIAL_URL = 'https://line.me/R/ti/p/@djt6282z';
 
 const COACH_CONFIG = {
-  Victor: { color: '#039BE5', label: 'Victor 教練' },
+  Victor: { color: '#039BE5', label: 'Victor 教練', maxClassesPerDay: 8 },
   Apo:    { color: '#F6BF26', label: 'Apo 教練' },
   Morgan: { color: '#8E24AA', label: 'Morgan 教練' },
   Adam:   { color: '#D50000', label: 'Adam 教練' },
@@ -132,6 +132,14 @@ function renderGrid(dayOffs, shifts, now) {
     return `${d.getMonth() + 1}/${d.getDate()}`;
   });
 
+  // 計算每天已有多少 busy slots
+  const busyCountPerDay = {};
+  for (const key of busyCells) {
+    const di = parseInt(key.split('-')[0]);
+    busyCountPerDay[di] = (busyCountPerDay[di] || 0) + 1;
+  }
+  const maxPerDay = COACH_CONFIG[currentCoach]?.maxClassesPerDay || null;
+
   let html = '<div class="grid-container">';
 
   // 標頭列
@@ -172,6 +180,7 @@ function renderGrid(dayOffs, shifts, now) {
 
       if (busyCells.has(key))  html += `<div class="grid-cell busy-cell"></div>`;
       else if (cellDate <= now) html += `<div class="grid-cell past-cell"></div>`;
+      else if (maxPerDay && (busyCountPerDay[di] || 0) >= maxPerDay) html += `<div class="grid-cell full-cell"></div>`;
       else html += `<div class="grid-cell free-cell" data-dt="${formatDt(cellDate)}"></div>`;
     }
   }
@@ -199,8 +208,10 @@ function formatDt(date) {
 function onGridClick(e) {
   const free    = e.target.closest('.free-cell');
   const nonwork = e.target.closest('.nonwork-cell');
+  const full    = e.target.closest('.full-cell');
   if (free)    { openBookingModal(free.dataset.dt); return; }
-  if (nonwork) { openContactModal(); return; }
+  if (nonwork) { openContactModal(false); return; }
+  if (full)    { openContactModal(true);  return; }
 }
 
 function onOverlayClick(e) {
@@ -237,15 +248,29 @@ function openBookingModal(datetime) {
 }
 
 // ============================================================
-// 官方 LINE 聯繫 Modal（點非工作時間格）
+// 官方 LINE 聯繫 Modal（點非工作時間格 或 當天已滿）
 // ============================================================
-function openContactModal() {
+function openContactModal(isDayFull) {
   document.getElementById('modal-booking').style.display  = 'none';
   document.getElementById('booking-success').style.display = 'none';
   document.getElementById('modal-contact').style.display  = 'block';
-  document.getElementById('modal-title').textContent      = '非工作時段';
-  document.getElementById('modal-datetime').textContent   = '';
   document.getElementById('modal-overlay').classList.add('active');
+
+  if (isDayFull) {
+    document.getElementById('modal-title').textContent     = '今日預約已滿';
+    document.getElementById('modal-datetime').textContent  = '';
+    document.querySelector('.contact-icon').textContent    = '📅';
+    document.querySelector('.contact-title').textContent   = '今日預約名額已滿';
+    document.querySelector('.contact-msg').innerHTML       =
+      '若您仍希望預約此日，歡迎透過官方 LINE 詢問候補或其他可用時段，<br>將有專人為您服務！';
+  } else {
+    document.getElementById('modal-title').textContent     = '非工作時段';
+    document.getElementById('modal-datetime').textContent  = '';
+    document.querySelector('.contact-icon').textContent    = '🕐';
+    document.querySelector('.contact-title').textContent   = '此時段為非工作時間';
+    document.querySelector('.contact-msg').innerHTML       =
+      '若您希望預約此時段，或有其他課程相關問題，<br>歡迎透過官方 LINE 聯繫我們，將有專人為您服務！';
+  }
 }
 
 function closeModal() {
