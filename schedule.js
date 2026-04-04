@@ -166,6 +166,14 @@ function renderGrid(dayOffs, shifts, now) {
         continue;
       }
 
+      const key      = `${di}-${si}`;
+
+      // 有事件時，不管是否在班表內，都顯示忙碌
+      if (busyCells.has(key)) {
+        html += `<div class="grid-cell busy-cell"></div>`;
+        continue;
+      }
+
       const shift = shifts[String(di)];
       if (shift) {
         const [s, e] = shift;
@@ -176,10 +184,8 @@ function renderGrid(dayOffs, shifts, now) {
       }
 
       const cellDate = cellDateTime(di, si);
-      const key      = `${di}-${si}`;
 
-      if (busyCells.has(key))  html += `<div class="grid-cell busy-cell"></div>`;
-      else if (cellDate <= now) html += `<div class="grid-cell past-cell"></div>`;
+      if (cellDate <= now) html += `<div class="grid-cell past-cell"></div>`;
       else if (maxPerDay && (busyCountPerDay[di] || 0) >= maxPerDay) html += `<div class="grid-cell full-cell"></div>`;
       else html += `<div class="grid-cell free-cell" data-dt="${formatDt(cellDate)}"></div>`;
     }
