@@ -14,8 +14,8 @@ const COACH_SHIFTS = {
   Apo:    { default: [12, 23], overrides: {} },
   Morgan: { default: [12, 23], overrides: {} },
   Adam:   { default: [9,  17], overrides: {} },
-  Rick:   { default: [12, 23], overrides: {} },
-  Verna:  { default: [12, 23], overrides: {} }
+  Rick:   { default: [12, 21], overrides: {} },
+  Verna:  { default: [12, 21], overrides: {} }
 };
 
 const COACHES = {

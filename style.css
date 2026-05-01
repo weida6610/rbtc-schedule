@@ -128,23 +128,29 @@ body {
 /* ── Grid ── */
 .grid-container {
   display: grid;
-  grid-template-columns: 44px repeat(7, minmax(40px, 1fr));
+  grid-template-columns: 54px repeat(7, minmax(42px, 1fr));
   gap: 1px;
   background: var(--border);
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow: hidden;
-  min-width: 340px;
+  overflow: visible;
+  min-width: 380px;
   box-shadow: var(--shadow);
 }
 
 .grid-cell {
   background: var(--bg-cell);
-  min-height: 32px;
+  min-height: 28px;
 }
 
 /* Header */
-.time-header { background: #f7f8fc; }
+.time-header {
+  background: #f7f8fc;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  box-shadow: 1px 0 0 var(--border);
+}
 
 .day-header {
   background: #f7f8fc;
@@ -168,13 +174,37 @@ body {
 /* Time label */
 .time-label {
   background: #f7f8fc;
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   color: var(--text-muted);
-  padding: 4px 4px 0;
+  padding: 4px 5px 0;
   display: flex;
   align-items: flex-start;
   white-space: nowrap;
   font-weight: 500;
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  box-shadow: 1px 0 0 var(--border);
+}
+.time-label.hour-mark {
+  background: #eef1f7;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+.time-label.half-mark {
+  color: #a6a6bb;
+}
+
+.grid-cell.hour-row {
+  box-shadow: inset 0 1px 0 #cfd3de;
+}
+.grid-cell.row-hover {
+  outline: 1px solid rgba(3, 155, 229, 0.34);
+  outline-offset: -1px;
+}
+.time-label.row-hover {
+  background: #e7eef8;
+  color: var(--text-secondary);
 }
 
 /* Busy */

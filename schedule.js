@@ -18,12 +18,14 @@ const COACH_CONFIG = {
 
 const HOUR_START = 9;
 const HOUR_END   = 23;
-const SLOTS      = HOUR_END - HOUR_START; // 14
+const SLOT_MINUTES = 30;
+const SLOTS      = ((HOUR_END - HOUR_START) * 60) / SLOT_MINUTES; // 28
 
 let currentCoach      = 'Victor';
 let currentWeekOffset = 0;
 let weekStartDate     = null;
 let busyCells         = new Set();
+let busyEventCountPerDay = {};
 
 // ============================================================
 // 初始化
@@ -44,6 +46,8 @@ function init() {
   document.getElementById('btn-prev').addEventListener('click', prevWeek);
   document.getElementById('btn-next').addEventListener('click', nextWeek);
   document.getElementById('calendar-grid').addEventListener('click', onGridClick);
+  document.getElementById('calendar-grid').addEventListener('mouseover', onGridHover);
+  document.getElementById('calendar-grid').addEventListener('mouseleave', clearGridHover);
   document.getElementById('modal-overlay').addEventListener('click', onOverlayClick);
 
   loadEvents();
@@ -110,14 +114,21 @@ function renderCalendar(data) {
   const now     = new Date();
 
   busyCells = new Set();
+  busyEventCountPerDay = {};
   (data.events || []).forEach(ev => {
-    const end    = new Date(ev.end);
-    const cursor = new Date(ev.start);
-    while (cursor < end) {
-      const di = dayIndex(cursor);
-      const si = slotIndex(cursor);
-      if (di >= 0 && di <= 6 && si >= 0 && si < SLOTS) busyCells.add(`${di}-${si}`);
-      cursor.setMinutes(cursor.getMinutes() + 30);
+    const start = new Date(ev.start);
+    const end   = new Date(ev.end);
+    const eventDay = dayIndex(start);
+    if (eventDay >= 0 && eventDay <= 6) {
+      busyEventCountPerDay[eventDay] = (busyEventCountPerDay[eventDay] || 0) + 1;
+    }
+
+    for (let di = 0; di < 7; di++) {
+      for (let si = 0; si < SLOTS; si++) {
+        const cellStart = cellDateTime(di, si);
+        const cellEnd = new Date(cellStart.getTime() + SLOT_MINUTES * 60000);
+        if (start < cellEnd && end > cellStart) busyCells.add(`${di}-${si}`);
+      }
     }
   });
 
@@ -132,12 +143,6 @@ function renderGrid(dayOffs, shifts, now) {
     return `${d.getMonth() + 1}/${d.getDate()}`;
   });
 
-  // 計算每天已有多少 busy slots
-  const busyCountPerDay = {};
-  for (const key of busyCells) {
-    const di = parseInt(key.split('-')[0]);
-    busyCountPerDay[di] = (busyCountPerDay[di] || 0) + 1;
-  }
   const maxPerDay = COACH_CONFIG[currentCoach]?.maxClassesPerDay || null;
 
   let html = '<div class="grid-container">';
@@ -157,12 +162,15 @@ function renderGrid(dayOffs, shifts, now) {
 
   // 時段列
   for (let si = 0; si < SLOTS; si++) {
-    const hour = HOUR_START + si;
-    html += `<div class="grid-cell time-label">${String(hour).padStart(2,'0')}:00</div>`;
+    const { hour, minute } = slotParts(si);
+    const timeClass = minute === 0 ? ' hour-mark' : ' half-mark';
+    const rowClass = minute === 0 ? ' hour-row' : ' half-row';
+    const slotAttr = ` data-slot="${si}"`;
+    html += `<div class="grid-cell time-label${timeClass}${rowClass}"${slotAttr}>${formatTime(hour, minute)}</div>`;
 
     for (let di = 0; di < 7; di++) {
       if (dayOffs.has(di)) {
-        html += `<div class="grid-cell dayoff-cell"></div>`;
+        html += `<div class="grid-cell dayoff-cell${rowClass}"${slotAttr}></div>`;
         continue;
       }
 
@@ -170,24 +178,25 @@ function renderGrid(dayOffs, shifts, now) {
 
       // 有事件時，不管是否在班表內，都顯示忙碌
       if (busyCells.has(key)) {
-        html += `<div class="grid-cell busy-cell"></div>`;
+        html += `<div class="grid-cell busy-cell${rowClass}"${slotAttr}></div>`;
         continue;
       }
 
       const shift = shifts[String(di)];
       if (shift) {
         const [s, e] = shift;
-        if (hour < s || hour >= e) {
-          html += `<div class="grid-cell nonwork-cell"></div>`;
+        const cellMinutes = hour * 60 + minute;
+        if (cellMinutes < s * 60 || cellMinutes >= e * 60) {
+          html += `<div class="grid-cell nonwork-cell${rowClass}"${slotAttr}></div>`;
           continue;
         }
       }
 
       const cellDate = cellDateTime(di, si);
 
-      if (cellDate <= now) html += `<div class="grid-cell past-cell"></div>`;
-      else if (maxPerDay && (busyCountPerDay[di] || 0) >= maxPerDay) html += `<div class="grid-cell full-cell"></div>`;
-      else html += `<div class="grid-cell free-cell" data-dt="${formatDt(cellDate)}"></div>`;
+      if (cellDate <= now) html += `<div class="grid-cell past-cell${rowClass}"${slotAttr}></div>`;
+      else if (maxPerDay && (busyEventCountPerDay[di] || 0) >= maxPerDay) html += `<div class="grid-cell full-cell${rowClass}"${slotAttr}></div>`;
+      else html += `<div class="grid-cell free-cell${rowClass}"${slotAttr} data-dt="${formatDt(cellDate)}"></div>`;
     }
   }
 
@@ -196,18 +205,29 @@ function renderGrid(dayOffs, shifts, now) {
 }
 
 function dayIndex(date)  { return (date.getDay() + 6) % 7; }
-function slotIndex(date) { return Math.floor((date.getHours() * 60 + date.getMinutes() - HOUR_START * 60) / 60); }
+function slotParts(si) {
+  const totalMinutes = HOUR_START * 60 + si * SLOT_MINUTES;
+  return {
+    hour: Math.floor(totalMinutes / 60),
+    minute: totalMinutes % 60
+  };
+}
+
+function formatTime(hour, minute) {
+  return `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
+}
 
 function cellDateTime(di, si) {
   const d = new Date(weekStartDate);
+  const { hour, minute } = slotParts(si);
   d.setDate(weekStartDate.getDate() + di);
-  d.setHours(HOUR_START + si, 0, 0, 0);
+  d.setHours(hour, minute, 0, 0);
   return d;
 }
 
 function formatDt(date) {
   const DOW = ['日','一','二','三','四','五','六'];
-  return `${date.getMonth()+1}/${date.getDate()}（週${DOW[date.getDay()]}）${String(date.getHours()).padStart(2,'0')}:00`;
+  return `${date.getMonth()+1}/${date.getDate()}（週${DOW[date.getDay()]}）${formatTime(date.getHours(), date.getMinutes())}`;
 }
 
 // ── 格子點擊 ──
@@ -218,6 +238,31 @@ function onGridClick(e) {
   if (free)    { openBookingModal(free.dataset.dt); return; }
   if (nonwork) { openContactModal(false); return; }
   if (full)    { openContactModal(true);  return; }
+}
+
+let highlightedSlot = null;
+
+function onGridHover(e) {
+  const cell = e.target.closest('[data-slot]');
+  if (!cell) {
+    clearGridHover();
+    return;
+  }
+
+  const slot = cell.dataset.slot;
+  if (slot === highlightedSlot) return;
+
+  clearGridHover();
+  highlightedSlot = slot;
+  document.querySelectorAll(`#calendar-grid [data-slot="${slot}"]`)
+    .forEach(el => el.classList.add('row-hover'));
+}
+
+function clearGridHover() {
+  if (highlightedSlot === null) return;
+  document.querySelectorAll('#calendar-grid .row-hover')
+    .forEach(el => el.classList.remove('row-hover'));
+  highlightedSlot = null;
 }
 
 function onOverlayClick(e) {
