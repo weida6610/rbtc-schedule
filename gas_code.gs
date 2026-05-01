@@ -112,23 +112,27 @@ function getCoachEvents(coachName, weekOffset) {
         end:   ev.getEndTime().getTime()
       }));
 
-    // 全日「休」事件 → 排休
+    // 全日「14-23」「班表 14-23」「上班 14:00-23:00」事件 → 當日班表覆蓋
+    const shiftOverrides = {};
+
+    allEvents
+      .filter(ev => ev.isAllDayEvent())
+      .forEach(ev => {
+        const shift = parseShiftOverride(ev.getTitle());
+        if (!shift) return;
+
+        const di = eventDayIndex(ev, monday);
+        if (di !== null) shiftOverrides[String(di)] = shift;
+      });
+
+    // 全日「休」事件 → 排休。若同日有班表覆蓋，班表覆蓋優先。
     // 用 Utilities.formatDate(TZ) 比對日期字串，避免 UTC vs Asia/Taipei 時區偏移問題
     const dayOffs = [];
     allEvents
       .filter(ev => ev.isAllDayEvent() && ev.getTitle().includes('休'))
       .forEach(ev => {
-        const evStr = Utilities.formatDate(ev.getStartTime(), TZ, 'yyyy-MM-dd');
-        for (let di = 0; di < 7; di++) {
-          const d = new Date(monday);
-          d.setDate(monday.getDate() + di);
-          if (Utilities.formatDate(d, TZ, 'yyyy-MM-dd') === evStr) {
-            const jsDay = (di + 1) % 7; // di:0=Mon..6=Sun → jsDay:1=Mon..0=Sun
-            const hasOverride = shiftConf && shiftConf.overrides.hasOwnProperty(jsDay);
-            if (!hasOverride) dayOffs.push(di);
-            break;
-          }
-        }
+        const di = eventDayIndex(ev, monday);
+        if (di !== null && shiftOverrides[String(di)] === undefined) dayOffs.push(di);
       });
 
     // 計算每天班別（由 COACH_SHIFTS 決定，排休日跳過）
@@ -139,7 +143,9 @@ function getCoachEvents(coachName, weekOffset) {
       const jsDay = (di + 1) % 7; // di:0=Mon..6=Sun → jsDay:1=Mon..0=Sun
 
       if (!shiftConf) continue;
-      const shiftHours = (shiftConf.overrides[jsDay] !== undefined)
+      const shiftHours = (shiftOverrides[String(di)] !== undefined)
+        ? shiftOverrides[String(di)]
+        : (shiftConf.overrides[jsDay] !== undefined)
         ? shiftConf.overrides[jsDay]
         : shiftConf.default;
 
@@ -159,6 +165,40 @@ function getCoachEvents(coachName, weekOffset) {
     Logger.log('getCoachEvents error: ' + err.message);
     return { error: err.message, events: [] };
   }
+}
+
+function eventDayIndex(ev, monday) {
+  const evStr = Utilities.formatDate(ev.getStartTime(), TZ, 'yyyy-MM-dd');
+  for (let di = 0; di < 7; di++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + di);
+    if (Utilities.formatDate(d, TZ, 'yyyy-MM-dd') === evStr) return di;
+  }
+  return null;
+}
+
+function parseShiftOverride(title) {
+  const text = String(title || '')
+    .trim()
+    .replace(/[：]/g, ':')
+    .replace(/[－–—~～]/g, '-');
+
+  const match = text.match(/^(?:班表|上班|shift)?\s*(\d{1,2})(?::?([0-5]\d))?\s*-\s*(\d{1,2})(?::?([0-5]\d))?\s*$/i);
+  if (!match) return null;
+
+  const start = parseTimeToHour(match[1], match[2] || '00');
+  const end = parseTimeToHour(match[3], match[4] || '00');
+  if (start === null || end === null || start >= end) return null;
+
+  return [start, end];
+}
+
+function parseTimeToHour(hourText, minuteText) {
+  const hour = parseInt(hourText, 10);
+  const minute = parseInt(minuteText, 10);
+  if (hour < 0 || hour > 24 || minute < 0 || minute >= 60) return null;
+  if (hour === 24 && minute !== 0) return null;
+  return hour + minute / 60;
 }
 
 
