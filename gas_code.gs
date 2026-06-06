@@ -8,7 +8,7 @@ const TZ = 'Asia/Taipei';
 // 每位教練的預設工作時段
 // default: [開始時, 結束時]
 // overrides: { JS_weekday: [開始時, 結束時] }  0=週日, 1=週一 … 6=週六
-// 若當天有全日「休」事件，整天封鎖（優先於此設定）
+// 若當天有全日「休」事件，整天封鎖（Victor 週日除外）
 const COACH_SHIFTS = {
   Victor: { default: [11, 23], overrides: { 0: [9, 12] } }, // 週日 09-12
   Apo:    { default: [12, 23], overrides: {} },
@@ -126,13 +126,17 @@ function getCoachEvents(coachName, weekOffset) {
       });
 
     // 全日「休」事件 → 排休。若同日有班表覆蓋，班表覆蓋優先。
+    // Victor 週日的「休」視為 09:00-12:00，沿用 COACH_SHIFTS 的週日設定。
     // 用 Utilities.formatDate(TZ) 比對日期字串，避免 UTC vs Asia/Taipei 時區偏移問題
     const dayOffs = [];
     allEvents
       .filter(ev => ev.isAllDayEvent() && ev.getTitle().includes('休'))
       .forEach(ev => {
         const di = eventDayIndex(ev, monday);
-        if (di !== null && shiftOverrides[String(di)] === undefined) dayOffs.push(di);
+        const isVictorSunday = coachName === 'Victor' && di === 6;
+        if (di !== null && !isVictorSunday && shiftOverrides[String(di)] === undefined) {
+          dayOffs.push(di);
+        }
       });
 
     // 計算每天班別（由 COACH_SHIFTS 決定，排休日跳過）
