@@ -1,0 +1,589 @@
+<section class="rbtc-pricing-block" aria-labelledby="rbtc-pricing-title">
+  <style>
+    .rbtc-pricing-block {
+      --ink: #101b1b;
+      --muted: #66726f;
+      --paper: #f5f7f4;
+      --panel: #ffffff;
+      --line: #d9e2de;
+      --blue: #0a2035;
+      --teal: #27786c;
+      --mint: #e4f1ed;
+      --lime: #75c743;
+      --red: #ee0026;
+      color: var(--ink);
+      background: linear-gradient(180deg, #ffffff 0%, var(--paper) 100%);
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+      line-height: 1.7;
+      padding: 46px 20px;
+    }
+
+    .rbtc-pricing-block * {
+      box-sizing: border-box;
+    }
+
+    .rbtc-pricing-block a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .rbtc-pricing-block h1,
+    .rbtc-pricing-block h2,
+    .rbtc-pricing-block h3,
+    .rbtc-pricing-block p {
+      margin-top: 0;
+    }
+
+    .rbtc-pricing-block p {
+      color: var(--muted);
+    }
+
+    .rbtc-pricing-shell {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .rbtc-pricing-titlebar {
+      max-width: 760px;
+      margin-bottom: 24px;
+    }
+
+    .rbtc-eyebrow,
+    .rbtc-category-kicker {
+      margin-bottom: 8px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .rbtc-pricing-block h1 {
+      margin-bottom: 12px;
+      color: var(--blue);
+      font-size: 44px;
+      line-height: 1.16;
+      letter-spacing: 0;
+    }
+
+    .rbtc-pricing-block h2 {
+      margin-bottom: 0;
+      color: var(--blue);
+      font-size: 30px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .rbtc-pricing-block h3 {
+      margin-bottom: 8px;
+      color: var(--teal);
+      font-size: 25px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    .rbtc-category-panel {
+      overflow: hidden;
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 18px 44px rgba(10, 28, 42, 0.1);
+    }
+
+    .rbtc-category-heading {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 26px 30px;
+      background: #f8fbfa;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .rbtc-category-index {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      flex: 0 0 54px;
+      color: #ffffff;
+      background: var(--teal);
+      border-radius: 50%;
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .rbtc-price-list {
+      display: grid;
+    }
+
+    .rbtc-price-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(250px, 0.36fr);
+      gap: 24px;
+      align-items: center;
+      min-height: 156px;
+      padding: 28px 30px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .rbtc-price-row:last-child {
+      border-bottom: 0;
+    }
+
+    .rbtc-price-row.is-featured {
+      background: linear-gradient(90deg, rgba(228, 241, 237, 0.78), #ffffff 64%);
+    }
+
+    .rbtc-package-row .rbtc-plan-main {
+      grid-column: 1 / -1;
+    }
+
+    .rbtc-plan-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      margin-bottom: 12px;
+      padding: 5px 10px;
+      color: #071916;
+      background: var(--lime);
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .rbtc-plan-badge.is-muted {
+      color: var(--teal);
+      background: var(--mint);
+      border: 1px solid #c8dad5;
+    }
+
+    .rbtc-plan-subtitle {
+      display: block;
+      margin: -2px 0 8px;
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .rbtc-plan-main p {
+      max-width: 690px;
+      margin-bottom: 0;
+      font-size: 16px;
+    }
+
+    .rbtc-plan-main p + p {
+      margin-top: 8px;
+    }
+
+    .rbtc-notice-text {
+      color: var(--ink);
+    }
+
+    .rbtc-line-indent {
+      display: inline-block;
+      padding-left: 1em;
+    }
+
+    .rbtc-plan-price {
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 6px;
+      color: var(--blue);
+      white-space: nowrap;
+    }
+
+    .rbtc-plan-price .rbtc-currency,
+    .rbtc-plan-price .rbtc-period {
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .rbtc-plan-price strong {
+      font-size: 52px;
+      line-height: 1;
+    }
+
+    .rbtc-range-price strong {
+      font-size: 40px;
+    }
+
+    .rbtc-package-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 760px;
+      margin-top: 18px;
+    }
+
+    .rbtc-package-list div {
+      padding: 12px 14px;
+      background: #f8fbfa;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .rbtc-package-list span,
+    .rbtc-package-list strong {
+      display: block;
+    }
+
+    .rbtc-package-list span {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .rbtc-package-list strong {
+      color: var(--blue);
+      font-size: 18px;
+    }
+
+    .rbtc-link-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 22px 30px 28px;
+      border-top: 1px solid var(--line);
+      background: #fbfdfc;
+    }
+
+    .rbtc-link-row a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      color: #ffffff;
+      background: #3d4442;
+      border-radius: 6px;
+      font-weight: 900;
+    }
+
+    .rbtc-link-row a:nth-child(2) {
+      color: #ffffff;
+      background: #3d4442;
+    }
+
+    .rbtc-coach-link {
+      justify-content: center;
+    }
+
+      .rbtc-coach-link a {
+      min-width: 180px;
+      color: #ffffff;
+      background: #3d4442;
+    }
+
+    .rbtc-join-section {
+      position: relative;
+      overflow: hidden;
+      margin: 36px -20px -46px;
+      padding: clamp(58px, 8vw, 110px) 20px;
+      color: #ffffff;
+      background: linear-gradient(135deg, #061120 0%, #0a2035 48%, #072f3b 100%);
+    }
+
+    .rbtc-join-section::before {
+      content: "RBTC";
+      position: absolute;
+      right: 8%;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.08);
+      font-size: min(160px, 28vw);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .rbtc-join-content {
+      position: relative;
+      z-index: 1;
+      width: min(920px, 100%);
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .rbtc-join-logo {
+      display: grid;
+      place-items: center;
+      width: min(360px, 82vw);
+      min-height: 126px;
+      margin: 0 auto 26px;
+      padding: 18px 22px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1.05;
+      text-align: center;
+      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28);
+    }
+
+    .rbtc-join-logo span {
+      display: block;
+      margin-top: 8px;
+      color: var(--lime);
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .rbtc-join-content h2 {
+      margin-bottom: 16px;
+      color: #ffffff;
+      font-size: clamp(34px, 5vw, 62px);
+    }
+
+    .rbtc-join-content p:not(.rbtc-eyebrow) {
+      max-width: 620px;
+      margin: 0 auto 28px;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: clamp(17px, 2vw, 22px);
+    }
+
+    .rbtc-join-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 54px;
+      padding: 14px 28px;
+      color: #071916;
+      background: var(--lime);
+      border-radius: 6px;
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+    }
+
+    @media (max-width: 860px) {
+      .rbtc-price-row {
+        grid-template-columns: 1fr;
+        min-height: 0;
+      }
+
+      .rbtc-plan-price {
+        justify-content: flex-start;
+      }
+
+      .rbtc-package-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .rbtc-pricing-block {
+        padding: 34px 16px;
+      }
+
+      .rbtc-join-section {
+        margin-right: -16px;
+        margin-bottom: -34px;
+        margin-left: -16px;
+        padding-right: 16px;
+        padding-left: 16px;
+      }
+
+      .rbtc-pricing-block h1 {
+        font-size: 34px;
+      }
+
+      .rbtc-pricing-block h2 {
+        font-size: 26px;
+      }
+
+      .rbtc-pricing-block h3 {
+        font-size: 23px;
+      }
+
+      .rbtc-category-heading,
+      .rbtc-price-row,
+      .rbtc-link-row {
+        padding-right: 18px;
+        padding-left: 18px;
+      }
+
+      .rbtc-category-heading {
+        align-items: flex-start;
+      }
+
+      .rbtc-category-index {
+        width: 48px;
+        height: 48px;
+        flex-basis: 48px;
+        font-size: 17px;
+      }
+
+      .rbtc-plan-price strong {
+        font-size: 42px;
+      }
+
+      .rbtc-range-price {
+        white-space: normal;
+      }
+
+      .rbtc-range-price strong {
+        font-size: 34px;
+      }
+
+      .rbtc-package-list {
+        grid-template-columns: 1fr;
+      }
+
+      .rbtc-link-row a {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <div class="rbtc-pricing-shell">
+    <div class="rbtc-pricing-titlebar">
+      <p class="rbtc-eyebrow">RBTC Price List</p>
+      <h1 id="rbtc-pricing-title">收費表</h1>
+      <p>透明收費，依照訓練頻率與需求選擇入場方案或私人教練課程。</p>
+    </div>
+
+    <section class="rbtc-category-panel" aria-labelledby="rbtc-entry-title">
+      <div class="rbtc-category-heading">
+        <span class="rbtc-category-index">01</span>
+        <div>
+          <p class="rbtc-category-kicker">Entry Plan</p>
+          <h2 id="rbtc-entry-title">入場方案</h2>
+        </div>
+      </div>
+
+      <div class="rbtc-price-list" role="table" aria-label="入場方案收費表">
+        <article class="rbtc-price-row is-featured" role="row">
+          <div class="rbtc-plan-main" role="cell">
+            <h3>月訂閱制</h3>
+            <strong class="rbtc-plan-subtitle">月訂閱制不綁約</strong>
+            <p>0 元建置費，需綁定信用卡。<br>若有個人規劃調整，請於下期扣款日前，手動取消訂閱。</p>
+          </div>
+          <div class="rbtc-plan-price" role="cell">
+            <span class="rbtc-currency">NT$</span>
+            <strong>1,000</strong>
+            <span class="rbtc-period">/ 月</span>
+          </div>
+        </article>
+
+        <article class="rbtc-price-row" role="row">
+          <div class="rbtc-plan-main" role="cell">
+            <h3>單月購買</h3>
+            <p>適合想短期體驗或無信用卡者使用。</p>
+          </div>
+          <div class="rbtc-plan-price" role="cell">
+            <span class="rbtc-currency">NT$</span>
+            <strong>1,200</strong>
+            <span class="rbtc-period">/ 月</span>
+          </div>
+        </article>
+
+        <article class="rbtc-price-row is-featured" role="row">
+          <div class="rbtc-plan-main" role="cell">
+            <h3>單次入場</h3>
+            <p>可於官方 LINE 系統內完成購買，並點選計次租借。</p>
+          </div>
+          <div class="rbtc-plan-price" role="cell">
+            <span class="rbtc-currency">NT$</span>
+            <strong>250</strong>
+            <span class="rbtc-period">/ 次</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="rbtc-link-row" aria-label="入場方案相關連結">
+        <a href="https://www.rbtctw.com/gym" target="_blank" rel="noopener">場館環境</a>
+        <a href="https://lin.ee/og9bycEu" target="_blank" rel="noopener">官方 LINE</a>
+      </div>
+    </section>
+
+    <section class="rbtc-category-panel" aria-labelledby="rbtc-coach-title">
+      <div class="rbtc-category-heading">
+        <span class="rbtc-category-index">02</span>
+        <div>
+          <p class="rbtc-category-kicker">Private Coaching</p>
+          <h2 id="rbtc-coach-title">私人教練課程</h2>
+        </div>
+      </div>
+
+      <div class="rbtc-price-list" role="table" aria-label="私人教練課程收費表">
+        <article class="rbtc-price-row is-featured" role="row">
+          <div class="rbtc-plan-main" role="cell">
+            <h3>教練體驗課</h3>
+            <strong class="rbtc-plan-subtitle">每人限購一次</strong>
+            <p>體驗課程約 60-70 分鐘<br>包含神經動能檢測、科學評估、個人化規劃與訓練動作指導</p>
+          </div>
+          <div class="rbtc-plan-price" role="cell">
+            <span class="rbtc-currency">NT$</span>
+            <strong>800</strong>
+          </div>
+        </article>
+
+        <article class="rbtc-price-row rbtc-package-row" role="row">
+          <div class="rbtc-plan-main" role="cell">
+            <h3>一對一教練課程費用</h3>
+            <p>課程費用依購買堂數不同，約落於每堂 1,600-2,000 元。</p>
+            <div class="rbtc-package-list" aria-label="私人教練正式課程堂數方案">
+              <div><span>10 堂</span><strong>NT$20,000</strong></div>
+              <div><span>20 堂</span><strong>NT$36,000</strong></div>
+              <div><span>30 堂</span><strong>NT$51,000</strong></div>
+              <div><span>40 堂</span><strong>NT$64,000</strong></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="rbtc-price-row rbtc-package-row is-featured" role="row">
+          <div class="rbtc-plan-main" role="cell">
+            <h3>一對二教練課程費用</h3>
+            <p>請另洽官方 LINE，將有專人為您說明。</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="rbtc-link-row rbtc-coach-link" aria-label="私人教練課程預約連結">
+        <a href="https://www.rbtctw.com/coach" target="_blank" rel="noopener">預約教練課</a>
+        <a href="https://lin.ee/og9bycEu" target="_blank" rel="noopener">官方 LINE</a>
+      </div>
+    </section>
+
+    <section class="rbtc-category-panel" aria-labelledby="rbtc-inbody-title">
+      <div class="rbtc-category-heading">
+        <span class="rbtc-category-index">03</span>
+        <div>
+          <p class="rbtc-category-kicker">InBody</p>
+          <h2 id="rbtc-inbody-title">InBody 測量</h2>
+        </div>
+      </div>
+
+      <div class="rbtc-price-list" role="table" aria-label="InBody 測量收費表">
+        <article class="rbtc-price-row is-featured" role="row">
+          <div class="rbtc-plan-main" role="cell">
+            <h3>身體組成測量</h3>
+            <strong class="rbtc-plan-subtitle">會員專屬禮遇，凡有效期限內之會員，每月享有 1 次免費測量服務</strong>
+            <p class="rbtc-notice-text">．為確保數據準確，請先取下身上所有金屬物品<br><span class="rbtc-line-indent">（如：項鍊、戒指、手錶等）。</span></p>
+            <p class="rbtc-notice-text">．已懷孕者、體內裝有心臟起搏器及其他金屬植入者請勿測量。</p>
+            <p class="rbtc-notice-text">．測量完成後，將提供數據分析給您參考，如需深入了解訓練內容，<br><span class="rbtc-line-indent">歡迎與現場教練諮詢。</span></p>
+          </div>
+          <div class="rbtc-plan-price" role="cell">
+            <span class="rbtc-currency">NT$</span>
+            <strong>200</strong>
+            <span class="rbtc-period">/ 次</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="rbtc-join-section" aria-label="立即加入">
+      <div class="rbtc-join-content">
+        <div class="rbtc-join-logo" aria-label="RBTC Training Club 狂牛體能訓練中心">RBTC<span>Training Club 狂牛體能訓練中心</span></div>
+        <p class="rbtc-eyebrow">Ready to train</p>
+        <h2>立即加入狂牛體能運動</h2>
+        <p>加入官方 LINE，完成 Trainge 註冊後即可購買票券，開始你的訓練。</p>
+        <a class="rbtc-join-action" href="https://lin.ee/og9bycEu" target="_blank" rel="noopener">加入官方 LINE</a>
+      </div>
+    </section>
+  </div>
+</section>
