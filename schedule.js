@@ -7,14 +7,7 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbwLjltlY_ueiQqmix6CFMvs
 // ▼ 填入狂牛體能官方 LINE 網址
 const LINE_OFFICIAL_URL = 'https://line.me/R/ti/p/@djt6282z';
 
-const COACH_CONFIG = {
-  Victor: { color: '#039BE5', label: 'Victor 教練', maxClassesPerDay: 8 },
-  Apo:    { color: '#F6BF26', label: 'Apo 教練' },
-  Morgan: { color: '#8E24AA', label: 'Morgan 教練' },
-  Adam:   { color: '#D50000', label: 'Adam 教練' },
-  Rick:   { color: '#616161', label: 'Rick 教練' },
-  Verna:  { color: '#E67C73', label: 'Verna 教練' }
-};
+const COACH_CONFIG = RBTC_COACH_ROUTER.coaches;
 
 const HOUR_START = 9;
 const HOUR_END   = 23;
@@ -31,8 +24,8 @@ let busyEventCountPerDay = {};
 // 初始化
 // ============================================================
 function init() {
-  const params = new URLSearchParams(window.location.search);
-  currentCoach = params.get('coach') || 'Victor';
+  const route = RBTC_COACH_ROUTER.resolveFromLocation(window.location);
+  currentCoach = route.coach;
 
   const config = COACH_CONFIG[currentCoach];
   if (!config) {
@@ -42,6 +35,9 @@ function init() {
 
   document.documentElement.style.setProperty('--coach-color', config.color);
   document.getElementById('coach-name').textContent = config.label;
+  document.title = `${config.label}｜RBTC 體驗課預約`;
+  syncCanonicalUrl(currentCoach);
+  renderCoachSwitcher();
 
   document.getElementById('btn-prev').addEventListener('click', prevWeek);
   document.getElementById('btn-next').addEventListener('click', nextWeek);
@@ -50,6 +46,53 @@ function init() {
   document.getElementById('calendar-grid').addEventListener('mouseleave', clearGridHover);
   document.getElementById('modal-overlay').addEventListener('click', onOverlayClick);
 
+  loadEvents();
+}
+
+function syncCanonicalUrl(coachName) {
+  const canonical = RBTC_COACH_ROUTER.canonicalUrl(coachName);
+  let link = document.querySelector('link[rel="canonical"]');
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'canonical';
+    document.head.appendChild(link);
+  }
+  link.href = canonical;
+}
+
+function renderCoachSwitcher() {
+  const switcher = document.getElementById('coach-switcher');
+  if (!switcher) return;
+
+  switcher.innerHTML = RBTC_COACH_ROUTER.coachOrder.map(coachName => {
+    const config = COACH_CONFIG[coachName];
+    const active = coachName === currentCoach ? ' is-active' : '';
+    return `<a class="coach-chip${active}" href="${RBTC_COACH_ROUTER.queryUrl(coachName)}" data-coach="${coachName}" style="--chip-color:${config.color}">${config.label}</a>`;
+  }).join('');
+
+  if (switcher.dataset.bound !== 'true') {
+    switcher.addEventListener('click', onCoachSwitcherClick);
+    switcher.dataset.bound = 'true';
+  }
+}
+
+function onCoachSwitcherClick(e) {
+  const link = e.target.closest('[data-coach]');
+  if (!link) return;
+
+  e.preventDefault();
+  const nextCoach = link.dataset.coach;
+  if (!COACH_CONFIG[nextCoach] || nextCoach === currentCoach) return;
+
+  currentCoach = nextCoach;
+  currentWeekOffset = 0;
+  const config = COACH_CONFIG[currentCoach];
+  document.documentElement.style.setProperty('--coach-color', config.color);
+  document.getElementById('coach-name').textContent = config.label;
+  document.title = `${config.label}｜RBTC 體驗課預約`;
+  syncCanonicalUrl(currentCoach);
+  window.history.pushState({}, '', RBTC_COACH_ROUTER.queryUrl(currentCoach));
+  renderCoachSwitcher();
   loadEvents();
 }
 

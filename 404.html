@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RBTC 教練行事曆</title>
+  <script>
+    (function () {
+      var coaches = {
+        victor: 'Victor',
+        apo: 'Apo',
+        morgan: 'Morgan',
+        adam: 'Adam',
+        rick: 'Rick',
+        verna: 'Verna'
+      };
+      var segments = window.location.pathname.split('/').filter(Boolean);
+      var token = (segments.pop() || '').toLowerCase();
+      var coach = coaches[token];
+      if (coach) {
+        var basePath = window.location.hostname === 'weida6610.github.io' && segments[0] === 'rbtc-schedule'
+          ? '/rbtc-schedule/'
+          : '/';
+        window.location.replace(basePath + '?coach=' + encodeURIComponent(coach));
+      }
+    })();
+  </script>
+</head>
+<body style="font-family: system-ui, sans-serif; padding: 32px; color: #1a1a2e;">
+  <h1>找不到這個頁面</h1>
+  <p>如果你要預約教練課，請回到 <a href="/?coach=Victor">RBTC 教練行事曆</a>。</p>
+</body>
+</html>

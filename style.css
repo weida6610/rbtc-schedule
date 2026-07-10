@@ -44,6 +44,36 @@ body {
   letter-spacing: 0.02em;
 }
 
+#coach-switcher {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  -webkit-overflow-scrolling: touch;
+}
+
+.coach-chip {
+  flex: 0 0 auto;
+  color: var(--text-secondary);
+  background: #f7f8fc;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.coach-chip:hover,
+.coach-chip.is-active {
+  color: var(--chip-color);
+  background: #ffffff;
+  border-color: var(--chip-color);
+}
+
 #week-nav {
   display: flex;
   align-items: center;
