@@ -1,5 +1,27 @@
 # rbtc-schedule Worklog
 
+## 2026-07-29 01:18 CST - Booking success confirmation message
+
+### Main changes
+- Reworked the booking success state so users see a full confirmation card after submitting a trial-class request.
+- Added a visual success mark, headline, confirmation-status badge, explanatory copy, and a direct RBTC official LINE link.
+- Clarified that the submitted request is not final until the coach contacts the user and confirms the booking.
+- Fixed the display logic that hid the entire booking container after submission, which could leave only the modal header/time visible.
+- Moved LINE link initialization into `schedule.js` so both the non-work-time contact button and the new success-state LINE button receive the official LINE URL reliably.
+
+### Verification
+- `coach-router.js` and `schedule.js` syntax checks passed.
+- `git diff --check` passed.
+- Confirmed the real page sets both LINE links to `https://line.me/R/ti/p/@djt6282z`.
+- Verified the success card layout at:
+  - Mobile viewport: `390 x 844`
+  - Desktop viewport: `1280 x 800`
+- Both viewports showed no horizontal or vertical overflow, and the LINE button remained visible and full width.
+
+### Known issues or notes
+- No GAS backend change was needed.
+- The success text intentionally says the booking is confirmed only after the coach contacts the user.
+
 ## 2026-07-10 23:36 CST - Branded schedule domain and coach router
 
 ### Main changes

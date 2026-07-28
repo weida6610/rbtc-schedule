@@ -37,6 +37,7 @@ function init() {
   document.getElementById('coach-name').textContent = config.label;
   document.title = `${config.label}｜RBTC 體驗課預約`;
   syncCanonicalUrl(currentCoach);
+  syncLineLinks();
   renderCoachSwitcher();
 
   document.getElementById('btn-prev').addEventListener('click', prevWeek);
@@ -47,6 +48,13 @@ function init() {
   document.getElementById('modal-overlay').addEventListener('click', onOverlayClick);
 
   loadEvents();
+}
+
+function syncLineLinks() {
+  ['btn-line', 'btn-success-line'].forEach(id => {
+    const link = document.getElementById(id);
+    if (link) link.href = LINE_OFFICIAL_URL;
+  });
 }
 
 function syncCanonicalUrl(coachName) {
@@ -332,6 +340,7 @@ function openBookingModal(datetime) {
 
   // 切換到預約模式
   document.getElementById('modal-booking').style.display = 'block';
+  document.getElementById('booking-form-inner').style.display = 'block';
   document.getElementById('modal-contact').style.display = 'none';
   document.getElementById('booking-success').style.display = 'none';
   document.getElementById('modal-title').textContent    = '體驗課預約';
@@ -418,7 +427,10 @@ window.submitBooking = function () {
 };
 
 function showSuccess() {
-  document.getElementById('modal-booking').style.display  = 'none';
+  document.getElementById('modal-title').textContent = '預約申請已送出';
+  document.getElementById('modal-datetime').textContent = '';
+  document.getElementById('modal-booking').style.display  = 'block';
+  document.getElementById('booking-form-inner').style.display = 'none';
   document.getElementById('booking-success').style.display = 'block';
 }
 

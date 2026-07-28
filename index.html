@@ -130,10 +130,24 @@
 
       <!-- 送出成功 -->
       <div id="booking-success" style="display:none">
-        <div class="success-icon">✅</div>
-        <div class="success-title">預約已送出！</div>
-        <div class="success-msg">教練將盡快透過 LINE 與您確認時間<br>請保持 LINE 暢通</div>
-        <button class="btn-cancel" onclick="closeModal()">關閉</button>
+        <div class="success-card">
+          <div class="success-visual" aria-hidden="true">
+            <div class="success-ring"></div>
+            <div class="success-check">✓</div>
+          </div>
+          <div class="success-title">謝謝您的預約</div>
+          <div class="success-subtitle">預約申請已送出</div>
+          <p class="success-msg">
+            教練會收到您的預約通知，待教練與您聯繫確認後，才算預約成功唷。
+          </p>
+          <p class="success-line-help">
+            如有任何疑問，或一直沒有收到教練的確認訊息，請洽 RBTC 官方 LINE。
+          </p>
+          <a id="btn-success-line" href="#" target="_blank" class="btn-success-line" rel="noopener">
+            直接開啟 RBTC 官方 LINE
+          </a>
+          <button class="btn-cancel" onclick="closeModal()">關閉</button>
+        </div>
       </div>
 
     </div><!-- /modal-booking -->
@@ -159,14 +173,6 @@
 
   </div><!-- /modal -->
 </div><!-- /modal-overlay -->
-
-<script>
-  // 動態設定 LINE 按鈕網址（由 schedule.js 的 LINE_OFFICIAL_URL 決定）
-  document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('btn-line');
-    if (btn && typeof LINE_OFFICIAL_URL !== 'undefined') btn.href = LINE_OFFICIAL_URL;
-  });
-</script>
 <script src="coach-router.js"></script>
 <script src="schedule.js"></script>
 </body>
