@@ -1,5 +1,17 @@
 # rbtc-schedule Worklog
 
+## 2026-08-11 08:15 CST - Refine short-slot message
+
+### Main changes
+- Updated the modal copy shown when users tap an `不足 60 分鐘` slot.
+- New wording emphasizes that classes are 60 minutes and incomplete 60-minute windows cannot be booked directly.
+- Confirmed the 60-minute availability rule remains in shared frontend calendar logic, so it applies to every coach calendar.
+
+### Verification
+- `coach-router.js` and `schedule.js` syntax checks passed.
+- `git diff --check` passed.
+- Simulated shared 60-minute availability cases still passed.
+
 ## 2026-08-11 08:07 CST - Require 60-minute booking windows
 
 ### Main changes

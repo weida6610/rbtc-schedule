@@ -402,12 +402,12 @@ function openShortSlotModal() {
   document.getElementById('modal-contact').style.display  = 'block';
   document.getElementById('modal-overlay').classList.add('active');
 
-  document.getElementById('modal-title').textContent     = '此時段不足 60 分鐘';
+  document.getElementById('modal-title').textContent     = '不足 60 分鐘無法預約';
   document.getElementById('modal-datetime').textContent  = '';
   document.querySelector('.contact-icon').textContent    = '⏱';
-  document.querySelector('.contact-title').textContent   = '體驗課需保留連續 60 分鐘';
+  document.querySelector('.contact-title').textContent   = '課程為 60 分鐘';
   document.querySelector('.contact-msg').innerHTML       =
-    '這個時間旁邊只剩 30 分鐘空檔，無法直接預約。<br>請選擇連續兩格皆空白的時間，或透過官方 LINE 詢問其他安排。';
+    '此時段未滿完整 60 分鐘，暫時無法直接預約。<br>請選擇連續兩格皆空白的時間，或透過官方 LINE 洽詢協助。';
 }
 
 function closeModal() {
