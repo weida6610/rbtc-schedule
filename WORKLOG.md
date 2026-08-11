@@ -1,5 +1,27 @@
 # rbtc-schedule Worklog
 
+## 2026-08-11 08:07 CST - Require 60-minute booking windows
+
+### Main changes
+- Kept the calendar grid at 30-minute visual intervals.
+- Changed the bookable-slot rule so a start time is clickable only when the current slot and the next 30-minute slot are both available.
+- Added a dedicated `short-cell` state for times that are individually open but do not have enough continuous space for a 60-minute class.
+- Added a legend item for `不足 60 分鐘`.
+- Added a contact modal message explaining that trial classes require a continuous 60-minute window.
+
+### Verification
+- `coach-router.js` and `schedule.js` syntax checks passed.
+- `git diff --check` passed.
+- Simulated key slot cases:
+  - `09:00` is bookable when `09:00` and `09:30` are both free.
+  - `09:00` is not bookable when `09:30` is busy.
+  - `11:30` is not bookable when `12:00` is outside the coach shift.
+  - The final 30-minute calendar slot is not bookable by itself.
+  - `22:00` remains bookable when `22:00-23:00` is fully free.
+
+### Known issues or notes
+- This is a frontend availability rule. The booking notification still sends the selected start time as before.
+
 ## 2026-07-29 01:18 CST - Booking success confirmation message
 
 ### Main changes

@@ -147,6 +147,13 @@ body {
   );
   border: 1px solid var(--border);
 }
+.short-dot {
+  background-color: #f8f5ef;
+  background-image: repeating-linear-gradient(
+    -45deg, transparent, transparent 3px, rgba(170,130,70,0.16) 3px, rgba(170,130,70,0.16) 7px
+  );
+  border: 1px solid rgba(170,130,70,0.45);
+}
 
 /* ── Calendar Wrap ── */
 #calendar-wrap {
@@ -313,6 +320,29 @@ body {
   transition: background-color 0.1s;
 }
 .nonwork-cell:hover { background-color: #ebebf4; }
+
+/* 空檔不足 60 分鐘 */
+.short-cell {
+  background-color: #f8f5ef;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    rgba(170,130,70,0.08) 5px,
+    rgba(170,130,70,0.08) 10px
+  );
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.1s;
+}
+.short-cell::after {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(170,130,70,0.45);
+}
+.short-cell:hover { background-color: #f1eadf; }
 
 /* Loading / Error */
 .grid-msg {

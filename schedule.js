@@ -13,6 +13,8 @@ const HOUR_START = 9;
 const HOUR_END   = 23;
 const SLOT_MINUTES = 30;
 const SLOTS      = ((HOUR_END - HOUR_START) * 60) / SLOT_MINUTES; // 28
+const COURSE_MINUTES = 60;
+const COURSE_SLOTS = COURSE_MINUTES / SLOT_MINUTES;
 
 let currentCoach      = 'Victor';
 let currentWeekOffset = 0;
@@ -233,20 +235,16 @@ function renderGrid(dayOffs, shifts, now) {
         continue;
       }
 
-      const shift = shifts[String(di)];
-      if (shift) {
-        const [s, e] = shift;
-        const cellMinutes = hour * 60 + minute;
-        if (cellMinutes < s * 60 || cellMinutes >= e * 60) {
-          html += `<div class="grid-cell nonwork-cell${rowClass}"${slotAttr}></div>`;
-          continue;
-        }
+      if (!isSlotInShift(di, si, shifts)) {
+        html += `<div class="grid-cell nonwork-cell${rowClass}"${slotAttr}></div>`;
+        continue;
       }
 
       const cellDate = cellDateTime(di, si);
 
       if (cellDate <= now) html += `<div class="grid-cell past-cell${rowClass}"${slotAttr}></div>`;
       else if (maxPerDay && (busyEventCountPerDay[di] || 0) >= maxPerDay) html += `<div class="grid-cell full-cell${rowClass}"${slotAttr}></div>`;
+      else if (!isBookableStart(di, si, shifts)) html += `<div class="grid-cell short-cell${rowClass}"${slotAttr}></div>`;
       else html += `<div class="grid-cell free-cell${rowClass}"${slotAttr} data-dt="${formatDt(cellDate)}"></div>`;
     }
   }
@@ -281,13 +279,35 @@ function formatDt(date) {
   return `${date.getMonth()+1}/${date.getDate()}（週${DOW[date.getDay()]}）${formatTime(date.getHours(), date.getMinutes())}`;
 }
 
+function isSlotInShift(di, si, shifts) {
+  const shift = shifts[String(di)];
+  if (!shift) return true;
+
+  const { hour, minute } = slotParts(si);
+  const cellMinutes = hour * 60 + minute;
+  const [s, e] = shift;
+  return cellMinutes >= s * 60 && cellMinutes < e * 60;
+}
+
+function isBookableStart(di, si, shifts) {
+  for (let offset = 0; offset < COURSE_SLOTS; offset++) {
+    const targetSi = si + offset;
+    if (targetSi >= SLOTS) return false;
+    if (!isSlotInShift(di, targetSi, shifts)) return false;
+    if (busyCells.has(`${di}-${targetSi}`)) return false;
+  }
+  return true;
+}
+
 // ── 格子點擊 ──
 function onGridClick(e) {
   const free    = e.target.closest('.free-cell');
   const nonwork = e.target.closest('.nonwork-cell');
+  const short   = e.target.closest('.short-cell');
   const full    = e.target.closest('.full-cell');
   if (free)    { openBookingModal(free.dataset.dt); return; }
   if (nonwork) { openContactModal(false); return; }
+  if (short)   { openShortSlotModal(); return; }
   if (full)    { openContactModal(true);  return; }
 }
 
@@ -374,6 +394,20 @@ function openContactModal(isDayFull) {
     document.querySelector('.contact-msg').innerHTML       =
       '若您希望預約此時段，或有其他課程相關問題，<br>歡迎透過官方 LINE 聯繫我們，將有專人為您服務！';
   }
+}
+
+function openShortSlotModal() {
+  document.getElementById('modal-booking').style.display  = 'none';
+  document.getElementById('booking-success').style.display = 'none';
+  document.getElementById('modal-contact').style.display  = 'block';
+  document.getElementById('modal-overlay').classList.add('active');
+
+  document.getElementById('modal-title').textContent     = '此時段不足 60 分鐘';
+  document.getElementById('modal-datetime').textContent  = '';
+  document.querySelector('.contact-icon').textContent    = '⏱';
+  document.querySelector('.contact-title').textContent   = '體驗課需保留連續 60 分鐘';
+  document.querySelector('.contact-msg').innerHTML       =
+    '這個時間旁邊只剩 30 分鐘空檔，無法直接預約。<br>請選擇連續兩格皆空白的時間，或透過官方 LINE 詢問其他安排。';
 }
 
 function closeModal() {
