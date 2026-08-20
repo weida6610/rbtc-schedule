@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RBTC 教練 LINE 資料回填說明</title>
+  <meta name="description" content="RBTC 教練預約系統需要教練提供 LINE ID 與加好友連結，供學員預約後主動加入聯繫。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand: #06364a;
+      --accent: #06c755;
+      --paper: #f5f8f7;
+      --card: #ffffff;
+      --line: #dce6e2;
+      --text: #16252f;
+      --muted: #66747d;
+      --warning: #b45309;
+      --warning-bg: #fff7ed;
+      --shadow: 0 18px 44px rgba(11, 31, 42, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(6, 199, 85, 0.14), transparent 32rem),
+        linear-gradient(180deg, #ffffff 0%, var(--paper) 100%);
+      line-height: 1.75;
+    }
+
+    a { color: inherit; }
+
+    .page {
+      width: min(960px, 100%);
+      margin: 0 auto;
+      padding: 28px 18px 44px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--brand), #0b4d64);
+      color: #fff;
+      border-radius: 28px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "LINE";
+      position: absolute;
+      right: -8px;
+      bottom: -36px;
+      font-size: 132px;
+      font-weight: 800;
+      letter-spacing: -0.08em;
+      color: rgba(255, 255, 255, 0.08);
+      line-height: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.85rem, 5vw, 3rem);
+      line-height: 1.18;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      width: min(660px, 100%);
+      margin: 16px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.02rem;
+    }
+
+    .quick-card {
+      margin-top: 18px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      padding: 16px;
+      width: min(620px, 100%);
+      position: relative;
+      z-index: 1;
+    }
+
+    .quick-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .quick-card ul {
+      margin: 0;
+      padding-left: 1.2em;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 10px 28px rgba(11, 31, 42, 0.06);
+    }
+
+    .card.full { grid-column: 1 / -1; }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 1.3rem;
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+    }
+
+    .lead {
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 13px;
+      background: #f8fbfa;
+      border: 1px solid #e8efec;
+      border-radius: 16px;
+    }
+
+    .step-num {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--brand);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 1rem;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .shot-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .shot {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .shot-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      height: 30px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.88rem;
+    }
+
+    .shot-title {
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+
+    .shot p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .notice {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid #fed7aa;
+      color: var(--warning);
+      background: var(--warning-bg);
+      font-weight: 700;
+    }
+
+    .reply-box {
+      margin-top: 14px;
+      background: #0f2530;
+      color: #e8f5f0;
+      border-radius: 18px;
+      padding: 18px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      white-space: pre-wrap;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-btn {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      margin-top: 12px;
+      color: #fff;
+      background: var(--brand);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .copy-btn:active { transform: scale(0.98); }
+
+    .faq {
+      display: grid;
+      gap: 12px;
+    }
+
+    .faq-item {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #f8fbfa;
+      border: 1px solid #e8efec;
+    }
+
+    .faq-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .faq-item p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .footer {
+      margin-top: 24px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 760px) {
+      .page { padding: 18px 12px 34px; }
+      .hero { padding: 24px 20px; border-radius: 22px; }
+      .hero::after { font-size: 84px; bottom: -20px; }
+      .grid { grid-template-columns: 1fr; gap: 14px; }
+      .card { padding: 18px; border-radius: 20px; }
+      .step { grid-template-columns: 30px 1fr; padding: 12px; }
+      .step-num { width: 30px; height: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">RBTC 教練預約系統</div>
+      <h1>請提供你的 LINE ID 與加好友連結</h1>
+      <p>
+        預約系統準備在學員送出預約後，直接顯示對應教練的 LINE 聯絡方式。
+        這樣即使學員沒有開啟「允許以 LINE ID 加入好友」，也可以由學員主動加入教練，減少聯繫失敗。
+      </p>
+      <div class="quick-card">
+        <strong>請回傳 4 個項目</strong>
+        <ul>
+          <li>教練姓名</li>
+          <li>LINE ID</li>
+          <li>LINE 加好友連結</li>
+          <li>2 張截圖：LINE ID 頁面、加好友連結頁面</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="grid" aria-label="LINE 資料提供說明">
+      <article class="card">
+        <h2 class="section-title">一、找到 LINE ID</h2>
+        <p class="lead">請在自己的 LINE 個人檔案裡確認 ID，並回傳文字與截圖。</p>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-num">1</span>
+            <span><strong>打開 LINE</strong>進入「主頁」或「我的」頁面。</span>
+          </li>
+          <li class="step">
+            <span class="step-num">2</span>
+            <span><strong>點右上角設定</strong>進入「個人檔案」。</span>
+          </li>
+          <li class="step">
+            <span class="step-num">3</span>
+            <span><strong>找到 ID 欄位</strong>把 LINE ID 複製或手動打出來。</span>
+          </li>
+        </ol>
+      </article>
+
+      <article class="card">
+        <h2 class="section-title">二、取得加好友連結</h2>
+        <p class="lead">我們最需要的是「加好友連結」，之後會做成學員可直接點擊的按鈕。</p>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-num">1</span>
+            <span><strong>打開 LINE 主頁</strong>點「加入好友」或「好友」相關入口。</span>
+          </li>
+          <li class="step">
+            <span class="step-num">2</span>
+            <span><strong>進入邀請或 QR Code</strong>找到「分享連結」、「複製連結」或「邀請連結」。</span>
+          </li>
+          <li class="step">
+            <span class="step-num">3</span>
+            <span><strong>複製連結</strong>通常會長得像 <code>https://line.me/ti/p/...</code>。</span>
+          </li>
+        </ol>
+      </article>
+
+      <article class="card full">
+        <h2 class="section-title">三、截圖說明</h2>
+        <p class="lead">請回傳下面兩張截圖，方便我們確認資料正確，避免連結放錯或 ID 少打一個字。</p>
+
+        <div class="shot-list">
+          <div class="shot">
+            <div class="shot-header">
+              <span class="badge">截圖 1</span>
+              <div class="shot-title">LINE ID 畫面</div>
+            </div>
+            <p>
+              請截到「個人檔案」裡顯示 LINE ID 的畫面。若畫面有電話、Email 或其他私人資料，可以先遮掉，
+              但請保留 LINE ID 清楚可見。
+            </p>
+          </div>
+
+          <div class="shot">
+            <div class="shot-header">
+              <span class="badge">截圖 2</span>
+              <div class="shot-title">加好友連結或 QR Code 畫面</div>
+            </div>
+            <p>
+              請截到可以看到「分享連結 / 複製連結 / QR Code」的畫面。若可以，請同時把連結文字貼給我們，
+              不要只傳 QR Code 截圖，這樣比較不會輸入錯。
+            </p>
+          </div>
+        </div>
+
+        <div class="notice">
+          小提醒：請不要只傳 LINE 顯示名稱。顯示名稱會重複，也不一定能加好友；我們需要 LINE ID 與加好友連結。
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2 class="section-title">四、請直接照這個格式回傳</h2>
+        <p class="lead">複製下面格式，填完後連同兩張截圖一起傳回來。</p>
+        <div id="reply-template" class="reply-box">教練姓名：
+LINE ID：
+LINE 加好友連結：
+
+已附上：
+1. LINE ID 截圖
+2. 加好友連結或 QR Code 截圖</div>
+        <button class="copy-btn" type="button" onclick="copyTemplate()">複製回覆格式</button>
+      </article>
+
+      <article class="card full">
+        <h2 class="section-title">常見問題</h2>
+        <div class="faq">
+          <div class="faq-item">
+            <strong>如果我找不到加好友連結怎麼辦？</strong>
+            <p>先回傳 LINE ID 與 QR Code 截圖，我們可以協助確認。不過最理想還是提供可點擊的加好友連結。</p>
+          </div>
+          <div class="faq-item">
+            <strong>為什麼學員要主動加教練？</strong>
+            <p>有些學員沒有開啟「允許以 ID 加入好友」，教練可能加不到學員。改成學員送出預約後主動加入教練，成功率會比較高。</p>
+          </div>
+          <div class="faq-item">
+            <strong>我的 LINE ID 需要公開在預約前嗎？</strong>
+            <p>不會。規劃上會在學員送出預約後，才顯示該預約教練的聯絡方式。</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <p class="footer">RBTC 狂牛體能訓練中心｜教練 LINE 資料收集說明</p>
+  </main>
+
+  <script>
+    function copyTemplate() {
+      const text = document.getElementById('reply-template').textContent;
+      const btn = document.querySelector('.copy-btn');
+      const original = btn.textContent;
+      const done = () => {
+        btn.textContent = '已複製';
+        setTimeout(() => { btn.textContent = original; }, 1400);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+      } else {
+        fallbackCopy(text, done);
+      }
+    }
+
+    function fallbackCopy(text, done) {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.left = '-9999px';
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+      done();
+    }
+  </script>
+</body>
+</html>
