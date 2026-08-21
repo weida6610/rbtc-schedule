@@ -3,6 +3,8 @@
 // ============================================================
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwLjltlY_ueiQqmix6CFMvsRhuKHLZqM1xk4jZMxvLQSDVb5QXe32Y1X2UBg5SzdskJ/exec';
+const EVENTS_CACHE_API_URL = '';
+const EVENTS_API_TIMEOUT_MS = 2500;
 
 // ▼ 填入狂牛體能官方 LINE 網址
 const LINE_OFFICIAL_URL = 'https://line.me/R/ti/p/@djt6282z';
@@ -150,23 +152,60 @@ function loadEvents() {
   const requestId = ++activeEventsRequest;
   updateWeekLabel();
   const cachedEvents = readCachedEvents();
+  const hasVisibleCache = Boolean(cachedEvents);
   if (cachedEvents) {
     renderCalendar(cachedEvents);
   } else {
     document.getElementById('calendar-grid').innerHTML = '<div class="grid-msg">載入中…</div>';
   }
 
+  loadEventsFromPreferredSource(requestId, hasVisibleCache);
+}
+
+async function loadEventsFromPreferredSource(requestId, hasVisibleCache) {
+  if (EVENTS_CACHE_API_URL) {
+    try {
+      const data = await fetchEventsFromCacheApi();
+      handleEventsData(data, requestId);
+      return;
+    } catch (err) {
+      console.warn('events cache API failed; falling back to GAS', err);
+    }
+  }
+
+  loadEventsFromGasJsonp(requestId, hasVisibleCache);
+}
+
+async function fetchEventsFromCacheApi() {
+  const url = new URL(EVENTS_CACHE_API_URL);
+  url.searchParams.set('coach', currentCoach);
+  url.searchParams.set('week', String(currentWeekOffset));
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), EVENTS_API_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(url.toString(), {
+      signal: controller.signal,
+      cache: 'no-store'
+    });
+    if (!response.ok) throw new Error(`Cache API ${response.status}`);
+    return await response.json();
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function loadEventsFromGasJsonp(requestId, hasVisibleCache) {
   const old = document.getElementById('jsonp-script');
   if (old) old.remove();
 
-  const cbName = 'rbtcCb_' + Date.now();
+  const cbName = `rbtcCb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
   window[cbName] = function (data) {
     delete window[cbName];
-    if (requestId !== activeEventsRequest) return;
     const el = document.getElementById('jsonp-script');
     if (el) el.remove();
-    writeCachedEvents(data);
-    renderCalendar(data);
+    handleEventsData(data, requestId);
   };
 
   const script = document.createElement('script');
@@ -175,11 +214,21 @@ function loadEvents() {
   script.src   = `${GAS_URL}?action=events&coach=${encodeURIComponent(currentCoach)}&week=${currentWeekOffset}&callback=${cbName}`;
   script.onerror = () => {
     delete window[cbName];
-    if (requestId !== activeEventsRequest) return;
-    document.getElementById('calendar-grid').innerHTML =
-      '<div class="grid-msg">⚠️ 載入失敗，請稍後再試<br><button class="grid-retry-btn" type="button" onclick="loadEvents()">重新載入</button></div>';
+    showEventsLoadError(requestId, hasVisibleCache);
   };
   document.head.appendChild(script);
+}
+
+function handleEventsData(data, requestId) {
+  if (requestId !== activeEventsRequest) return;
+  writeCachedEvents(data);
+  renderCalendar(data);
+}
+
+function showEventsLoadError(requestId, hasVisibleCache) {
+  if (requestId !== activeEventsRequest || hasVisibleCache) return;
+  document.getElementById('calendar-grid').innerHTML =
+    '<div class="grid-msg">⚠️ 載入失敗，請稍後再試<br><button class="grid-retry-btn" type="button" onclick="loadEvents()">重新載入</button></div>';
 }
 
 function eventsCacheKey() {
