@@ -353,6 +353,20 @@ body {
   font-size: 0.85rem;
 }
 
+.grid-retry-btn {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  margin-top: 12px;
+  padding: 9px 15px;
+  background: var(--coach-color);
+  color: #fff;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 /* ── Modal ── */
 #modal-overlay {
   display: none;

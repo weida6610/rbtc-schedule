@@ -21,6 +21,7 @@ let currentWeekOffset = 0;
 let weekStartDate     = null;
 let busyCells         = new Set();
 let busyEventCountPerDay = {};
+let activeEventsRequest = 0;
 
 // ============================================================
 // 初始化
@@ -145,6 +146,7 @@ function onCoachSwitcherClick(e) {
 // 資料載入（JSONP）
 // ============================================================
 function loadEvents() {
+  const requestId = ++activeEventsRequest;
   updateWeekLabel();
   document.getElementById('calendar-grid').innerHTML = '<div class="grid-msg">載入中…</div>';
 
@@ -154,6 +156,7 @@ function loadEvents() {
   const cbName = 'rbtcCb_' + Date.now();
   window[cbName] = function (data) {
     delete window[cbName];
+    if (requestId !== activeEventsRequest) return;
     const el = document.getElementById('jsonp-script');
     if (el) el.remove();
     renderCalendar(data);
@@ -161,9 +164,13 @@ function loadEvents() {
 
   const script = document.createElement('script');
   script.id    = 'jsonp-script';
-  script.src   = `${GAS_URL}?action=events&coach=${currentCoach}&week=${currentWeekOffset}&callback=${cbName}`;
+  script.async = true;
+  script.src   = `${GAS_URL}?action=events&coach=${encodeURIComponent(currentCoach)}&week=${currentWeekOffset}&callback=${cbName}`;
   script.onerror = () => {
-    document.getElementById('calendar-grid').innerHTML = '<div class="grid-msg">⚠️ 載入失敗，請重新整理</div>';
+    delete window[cbName];
+    if (requestId !== activeEventsRequest) return;
+    document.getElementById('calendar-grid').innerHTML =
+      '<div class="grid-msg">⚠️ 載入失敗，請稍後再試<br><button class="grid-retry-btn" type="button" onclick="loadEvents()">重新載入</button></div>';
   };
   document.head.appendChild(script);
 }
