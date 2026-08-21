@@ -66,9 +66,9 @@
         </div>
 
         <div class="form-section">
-          <div class="form-label">LINE ID <span class="required">*</span></div>
-          <input id="f-line" type="text" class="form-input" placeholder="輸入 LINE ID 或貼上好友連結">
-          <div class="form-hint">請確保 LINE 為可加好友狀態，教練將透過 LINE 與您確認預約詳情</div>
+          <div class="form-label">LINE 聯絡方式（選填）</div>
+          <input id="f-line" type="text" class="form-input" placeholder="可輸入 LINE ID 或貼上好友連結">
+          <div class="form-hint">送出後會顯示教練 LINE，請主動加入教練以確認預約詳情。</div>
         </div>
 
         <div class="form-divider">讓我們更了解您</div>
@@ -138,14 +138,21 @@
           </div>
           <div class="success-title">謝謝您的預約</div>
           <div class="success-subtitle">預約申請已送出</div>
-          <p class="success-msg">
+          <p id="success-msg" class="success-msg">
             教練會收到您的預約通知，待教練與您聯繫確認後，才算預約成功唷。
           </p>
+          <div id="success-coach-line-card" class="success-coach-line-card">
+            <div id="success-coach-line-name" class="success-coach-line-name">教練 LINE</div>
+            <a id="btn-coach-line" href="#" target="_blank" class="btn-coach-line" rel="noopener">
+              加入教練 LINE
+            </a>
+            <div id="success-coach-line-id" class="success-coach-line-id"></div>
+          </div>
           <p class="success-line-help">
-            如有任何疑問，或一直沒有收到教練的確認訊息，請洽 RBTC 官方 LINE。
+            若無法加入教練，或一直沒有收到教練的確認訊息，請洽 RBTC 官方 LINE。
           </p>
           <a id="btn-success-line" href="#" target="_blank" class="btn-success-line" rel="noopener">
-            直接開啟 RBTC 官方 LINE
+            聯繫 RBTC 官方 LINE
           </a>
           <button class="btn-cancel" onclick="closeModal()">關閉</button>
         </div>

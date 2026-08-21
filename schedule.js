@@ -59,6 +59,41 @@ function syncLineLinks() {
   });
 }
 
+function syncSuccessCoachLine() {
+  const config = COACH_CONFIG[currentCoach] || {};
+  const line = config.line || {};
+  const coachLabel = config.label || currentCoach;
+  const card = document.getElementById('success-coach-line-card');
+  const name = document.getElementById('success-coach-line-name');
+  const button = document.getElementById('btn-coach-line');
+  const lineId = document.getElementById('success-coach-line-id');
+  const message = document.getElementById('success-msg');
+
+  if (message) {
+    message.textContent = `教練會收到您的預約通知。請點擊下方按鈕加入 ${coachLabel} LINE，待教練與您聯繫確認後，才算預約成功唷。`;
+  }
+
+  if (!card || !name || !button || !lineId) return;
+
+  if (!line.url) {
+    card.style.display = 'none';
+    return;
+  }
+
+  card.style.display = 'block';
+  name.textContent = `${coachLabel} LINE`;
+  button.href = line.url;
+  button.textContent = `加入 ${coachLabel} LINE`;
+
+  if (line.id) {
+    lineId.style.display = 'block';
+    lineId.textContent = `LINE ID：${line.id}`;
+  } else {
+    lineId.style.display = 'none';
+    lineId.textContent = '';
+  }
+}
+
 function syncCanonicalUrl(coachName) {
   const canonical = RBTC_COACH_ROUTER.canonicalUrl(coachName);
   let link = document.querySelector('link[rel="canonical"]');
@@ -431,8 +466,8 @@ window.submitBooking = function () {
   const phone  = document.getElementById('f-phone').value.trim();
   const lineId = document.getElementById('f-line').value.trim();
 
-  if (!name || !phone || !lineId) {
-    document.getElementById('booking-error').textContent = '請填寫姓名、電話及 LINE ID';
+  if (!name || !phone) {
+    document.getElementById('booking-error').textContent = '請填寫姓名及電話';
     return;
   }
 
@@ -465,6 +500,7 @@ function showSuccess() {
   document.getElementById('modal-datetime').textContent = '';
   document.getElementById('modal-booking').style.display  = 'block';
   document.getElementById('booking-form-inner').style.display = 'none';
+  syncSuccessCoachLine();
   document.getElementById('booking-success').style.display = 'block';
 }
 

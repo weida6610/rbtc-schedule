@@ -608,6 +608,64 @@ body {
   margin: 6px 0 0;
 }
 
+.success-coach-line-card {
+  width: 100%;
+  margin: 4px 0 2px;
+  padding: 14px;
+  background: #f6fbf8;
+  border: 1px solid rgba(6, 199, 85, 0.22);
+  border-radius: 16px;
+}
+
+.success-coach-line-name {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.btn-coach-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  background: #06C755;
+  color: #fff;
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-size: 0.95rem;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(6,199,85,0.22);
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.btn-coach-line::before {
+  content: 'LINE';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  margin-right: 9px;
+  padding: 0 7px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.btn-coach-line:hover { opacity: 0.9; }
+.btn-coach-line:active { transform: scale(0.98); }
+
+.success-coach-line-id {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 800;
+  word-break: break-word;
+}
+
 #booking-success .success-line-help {
   font-size: 0.82rem;
   color: var(--text-muted);

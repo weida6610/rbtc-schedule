@@ -11,37 +11,61 @@ const RBTC_COACH_ROUTER = (() => {
       label: 'Victor 教練',
       slug: 'victor',
       aliases: ['victor', 'Victor'],
-      maxClassesPerDay: 8
+      maxClassesPerDay: 8,
+      line: {
+        id: 'weida6610',
+        url: 'https://line.me/ti/p/XyTQgs3Zlx'
+      }
     },
     Apo: {
       color: '#F6BF26',
       label: 'Apo 教練',
       slug: 'apo',
-      aliases: ['apo', 'Apo']
+      aliases: ['apo', 'Apo'],
+      line: {
+        id: 'clotwuedc',
+        url: 'https://line.me/ti/p/pZMY-dhWCc'
+      }
     },
     Morgan: {
       color: '#8E24AA',
       label: 'Morgan 教練',
       slug: 'morgan',
-      aliases: ['morgan', 'Morgan']
+      aliases: ['morgan', 'Morgan'],
+      line: {
+        id: 'Morgan4992',
+        url: 'https://line.me/ti/p/lHZkfGbluR'
+      }
     },
     Adam: {
       color: '#D50000',
       label: 'Adam 教練',
       slug: 'adam',
-      aliases: ['adam', 'Adam']
+      aliases: ['adam', 'Adam'],
+      line: {
+        id: '',
+        url: 'https://line.me/ti/p/udNvHhN2LJ'
+      }
     },
     Rick: {
       color: '#616161',
       label: 'Rick 教練',
       slug: 'rick',
-      aliases: ['rick', 'Rick']
+      aliases: ['rick', 'Rick'],
+      line: {
+        id: '86181225',
+        url: 'https://line.me/ti/p/NqkRWrrDDV'
+      }
     },
     Verna: {
       color: '#E67C73',
       label: 'Verna 教練',
       slug: 'verna',
-      aliases: ['verna', 'Verna']
+      aliases: ['verna', 'Verna'],
+      line: {
+        id: 'jenny5130991',
+        url: 'https://line.me/ti/p/vsTvksHLq0'
+      }
     }
   };
 
@@ -114,4 +138,3 @@ const RBTC_COACH_ROUTER = (() => {
     resolveToken
   };
 })();
-
