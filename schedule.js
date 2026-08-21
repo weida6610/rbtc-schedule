@@ -15,6 +15,7 @@ const SLOT_MINUTES = 30;
 const SLOTS      = ((HOUR_END - HOUR_START) * 60) / SLOT_MINUTES; // 28
 const COURSE_MINUTES = 60;
 const COURSE_SLOTS = COURSE_MINUTES / SLOT_MINUTES;
+const EVENTS_SESSION_CACHE_MS = 2 * 60 * 1000;
 
 let currentCoach      = 'Victor';
 let currentWeekOffset = 0;
@@ -148,7 +149,12 @@ function onCoachSwitcherClick(e) {
 function loadEvents() {
   const requestId = ++activeEventsRequest;
   updateWeekLabel();
-  document.getElementById('calendar-grid').innerHTML = '<div class="grid-msg">載入中…</div>';
+  const cachedEvents = readCachedEvents();
+  if (cachedEvents) {
+    renderCalendar(cachedEvents);
+  } else {
+    document.getElementById('calendar-grid').innerHTML = '<div class="grid-msg">載入中…</div>';
+  }
 
   const old = document.getElementById('jsonp-script');
   if (old) old.remove();
@@ -159,6 +165,7 @@ function loadEvents() {
     if (requestId !== activeEventsRequest) return;
     const el = document.getElementById('jsonp-script');
     if (el) el.remove();
+    writeCachedEvents(data);
     renderCalendar(data);
   };
 
@@ -173,6 +180,35 @@ function loadEvents() {
       '<div class="grid-msg">⚠️ 載入失敗，請稍後再試<br><button class="grid-retry-btn" type="button" onclick="loadEvents()">重新載入</button></div>';
   };
   document.head.appendChild(script);
+}
+
+function eventsCacheKey() {
+  return `rbtc-events:${currentCoach}:${currentWeekOffset}`;
+}
+
+function readCachedEvents() {
+  try {
+    const raw = sessionStorage.getItem(eventsCacheKey());
+    if (!raw) return null;
+    const cache = JSON.parse(raw);
+    if (!cache || !cache.data || Date.now() - cache.savedAt > EVENTS_SESSION_CACHE_MS) return null;
+    return cache.data;
+  } catch (err) {
+    return null;
+  }
+}
+
+function writeCachedEvents(data) {
+  if (!data || data.error) return;
+
+  try {
+    sessionStorage.setItem(eventsCacheKey(), JSON.stringify({
+      savedAt: Date.now(),
+      data
+    }));
+  } catch (err) {
+    // sessionStorage can be unavailable in some embedded browsers.
+  }
 }
 
 function prevWeek() { if (currentWeekOffset > 0) { currentWeekOffset--; loadEvents(); } }

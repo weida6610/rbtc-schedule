@@ -53,6 +53,7 @@ const COACHES = {
 
 const TG_BOT_TOKEN     = '8724846224:AAEdQXHVMpO352x-JAduOQoc3BMuEY7WEHA';
 const TG_GROUP_CHAT_ID = '-5123933467';
+const EVENTS_CACHE_SECONDS = 45;
 
 // ▲▲▲ 設定區結束 ▲▲▲
 
@@ -98,6 +99,17 @@ function getCoachEvents(coachName, weekOffset) {
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
     sunday.setHours(23, 59, 59, 999);
+
+    const weekKey = Utilities.formatDate(monday, TZ, 'yyyyMMdd');
+    const cacheKey = `events:${coachName}:${weekOffset}:${weekKey}`;
+    let cache = null;
+    try {
+      cache = CacheService.getScriptCache();
+      const cached = cache.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch (cacheErr) {
+      Logger.log('events cache read skipped: ' + cacheErr.message);
+    }
 
     const cal = CalendarApp.getCalendarById(coach.calId);
     if (!cal) return { error: '無法存取行事曆', events: [] };
@@ -156,7 +168,7 @@ function getCoachEvents(coachName, weekOffset) {
       shifts[String(di)] = shiftHours;
     }
 
-    return {
+    const result = {
       coach:     coachName,
       color:     coach.color,
       weekStart: monday.getTime(),
@@ -164,6 +176,13 @@ function getCoachEvents(coachName, weekOffset) {
       dayOffs,
       shifts
     };
+
+    try {
+      if (cache) cache.put(cacheKey, JSON.stringify(result), EVENTS_CACHE_SECONDS);
+    } catch (cacheErr) {
+      Logger.log('events cache write skipped: ' + cacheErr.message);
+    }
+    return result;
 
   } catch (err) {
     Logger.log('getCoachEvents error: ' + err.message);
