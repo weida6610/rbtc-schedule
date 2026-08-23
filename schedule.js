@@ -558,8 +558,8 @@ window.submitBooking = function () {
   const phone  = document.getElementById('f-phone').value.trim();
   const lineId = document.getElementById('f-line').value.trim();
 
-  if (!name || !phone) {
-    document.getElementById('booking-error').textContent = '請填寫姓名及電話';
+  if (!name || !phone || !lineId) {
+    document.getElementById('booking-error').textContent = '請填寫姓名、電話及 LINE ID';
     return;
   }
 
