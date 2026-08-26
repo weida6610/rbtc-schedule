@@ -133,23 +133,26 @@ function getCoachEvents(coachName, weekOffset) {
         const shift = parseShiftOverride(ev.getTitle());
         if (!shift) return;
 
-        const di = eventDayIndex(ev, monday);
-        if (di !== null) shiftOverrides[String(di)] = shift;
+        eventDayIndexes(ev, monday).forEach(di => {
+          shiftOverrides[String(di)] = shift;
+        });
       });
 
     // 全日「休」事件 → 排休。若同日有班表覆蓋，班表覆蓋優先。
     // Victor 週日的「休」視為 09:00-12:00，沿用 COACH_SHIFTS 的週日設定。
-    // 用 Utilities.formatDate(TZ) 比對日期字串，避免 UTC vs Asia/Taipei 時區偏移問題
-    const dayOffs = [];
+    // 連續全天事件的結束日為 exclusive，因此要展開涵蓋到的每一天。
+    const dayOffSet = new Set();
     allEvents
       .filter(ev => ev.isAllDayEvent() && ev.getTitle().includes('休'))
       .forEach(ev => {
-        const di = eventDayIndex(ev, monday);
-        const isVictorSunday = coachName === 'Victor' && di === 6;
-        if (di !== null && !isVictorSunday && shiftOverrides[String(di)] === undefined) {
-          dayOffs.push(di);
-        }
+        eventDayIndexes(ev, monday).forEach(di => {
+          const isVictorSunday = coachName === 'Victor' && di === 6;
+          if (!isVictorSunday && shiftOverrides[String(di)] === undefined) {
+            dayOffSet.add(di);
+          }
+        });
       });
+    const dayOffs = Array.from(dayOffSet).sort((a, b) => a - b);
 
     // 計算每天班別（由 COACH_SHIFTS 決定，排休日跳過）
     const shifts = {};
@@ -190,14 +193,18 @@ function getCoachEvents(coachName, weekOffset) {
   }
 }
 
-function eventDayIndex(ev, monday) {
-  const evStr = Utilities.formatDate(ev.getStartTime(), TZ, 'yyyy-MM-dd');
+function eventDayIndexes(ev, monday) {
+  const startStr = Utilities.formatDate(ev.getStartTime(), TZ, 'yyyy-MM-dd');
+  const endStr = Utilities.formatDate(ev.getEndTime(), TZ, 'yyyy-MM-dd');
+  const indexes = [];
+
   for (let di = 0; di < 7; di++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + di);
-    if (Utilities.formatDate(d, TZ, 'yyyy-MM-dd') === evStr) return di;
+    const dayStr = Utilities.formatDate(d, TZ, 'yyyy-MM-dd');
+    if (dayStr >= startStr && dayStr < endStr) indexes.push(di);
   }
-  return null;
+  return indexes;
 }
 
 function parseShiftOverride(title) {
