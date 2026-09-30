@@ -74,6 +74,62 @@ body {
   border-color: var(--chip-color);
 }
 
+#victor-pricing {
+  margin: 12px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--coach-color);
+  border-radius: 12px;
+}
+
+#victor-pricing h2 {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.coach-pricing-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.coach-pricing-options dt {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.coach-pricing-options dd {
+  margin-top: 4px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.coach-pricing-options dd span {
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.coach-pricing-note {
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 480px) {
+  .coach-pricing-options { grid-template-columns: 1fr; gap: 10px; }
+  .coach-pricing-options > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .coach-pricing-options dd { margin-top: 0; }
+}
+
 #week-nav {
   display: flex;
   align-items: center;

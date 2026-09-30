@@ -45,6 +45,7 @@ function init() {
   syncCanonicalUrl(currentCoach);
   syncLineLinks();
   renderCoachSwitcher();
+  syncCoachPricing();
 
   document.getElementById('btn-prev').addEventListener('click', prevWeek);
   document.getElementById('btn-next').addEventListener('click', nextWeek);
@@ -125,6 +126,10 @@ function renderCoachSwitcher() {
   }
 }
 
+function syncCoachPricing() {
+  document.getElementById('victor-pricing').hidden = currentCoach !== 'Victor';
+}
+
 function onCoachSwitcherClick(e) {
   const link = e.target.closest('[data-coach]');
   if (!link) return;
@@ -142,6 +147,7 @@ function onCoachSwitcherClick(e) {
   syncCanonicalUrl(currentCoach);
   window.history.pushState({}, '', RBTC_COACH_ROUTER.queryUrl(currentCoach));
   renderCoachSwitcher();
+  syncCoachPricing();
   loadEvents();
 }
 
